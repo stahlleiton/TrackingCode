@@ -8,7 +8,7 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('TrackingCode.HITrackingStudies.HITrackCorrectionAnalyzer_cfi')
+process.load('HITrackingStudies.HITrackingStudies.HITrackCorrectionAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -36,7 +36,7 @@ process.tpClusterProducer  = process.tpClusterProducerDefault.clone()
 # Input source
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-    fileNames =  cms.untracked.vstring('file:../../fileout_step3_recodebug.root')
+    fileNames =  cms.untracked.vstring('file:fileout_step3_recodebug.root')
 )
 ### centrality ###
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi") 
@@ -78,7 +78,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic_hi'
 ###
 
 #forest style analyzers (anaTrack module) (not affected by HITrackCorrections code)
-process.load('TrackingCode.AnalyzerCode.trackAnalyzer_cff')
+process.load('HITrackingStudies.AnalyzerCode.trackAnalyzer_cff')
 ###
 
 process.p = cms.Path(

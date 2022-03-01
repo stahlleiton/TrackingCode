@@ -28,25 +28,6 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
     fileNames = cms.untracked.vstring('file:fileout_step1.root'),
-    ##inputCommands = cms.untracked.vstring(
-    ##    'keep *',
-    ##    'drop *_genParticles_*_*',
-    ##    'drop *_genParticlesForJets_*_*',
-    ##    'drop *_kt4GenJets_*_*',
-    ##    'drop *_kt6GenJets_*_*',
-    ##    'drop *_iterativeCone5GenJets_*_*',
-    ##    'drop *_ak4GenJets_*_*',
-    ##    'drop *_ak7GenJets_*_*',
-    ##    'drop *_ak8GenJets_*_*',
-    ##    'drop *_ak4GenJetsNoNu_*_*',
-    ##    'drop *_ak8GenJetsNoNu_*_*',
-    ##    'drop *_genCandidatesForMET_*_*',
-    ##    'drop *_genParticlesForMETAllVisible_*_*',
-    ##    'drop *_genMetCalo_*_*',
-    ##    'drop *_genMetCaloAndNonPrompt_*_*',
-    ##    'drop *_genMetTrue_*_*',
-    ##    'drop *_genMetIC5GenJs_*_*'
-    ##),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -114,7 +95,6 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
-process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
@@ -133,11 +113,6 @@ from Configuration.DataProcessing.Utils import addMonitoring
 #call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
 process = addMonitoring(process)
 
-# Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-##from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
-
-#call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
-##process = customizeHLTforMC(process)
 
 # End of customisation functions
 

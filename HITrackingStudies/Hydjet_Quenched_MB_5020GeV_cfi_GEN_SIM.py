@@ -1,3 +1,8 @@
+# Auto generated configuration file
+# using: 
+# Revision: 1.19 
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# with command line options: Configuration/Generator/python/Hydjet_Quenched_MinBias_5020GeV_cfi.py --fileout=fileout_step1.root --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions auto:phase1_2021_realistic_hi --beamspot Run3RoundOptics25ns13TeVLowSigmaZ --step GEN,SIM --geometry DB:Extended --era Run3_pp_on_PbPb --python_filename test.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n 10
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_pp_on_PbPb_cff import Run3_pp_on_PbPb
@@ -5,39 +10,20 @@ from Configuration.Eras.Era_Run3_pp_on_PbPb_cff import Run3_pp_on_PbPb
 process = cms.Process('SIM',Run3_pp_on_PbPb)
 
 # import of standard configurations
-##process.load('Configuration.StandardSequences.Services_cff')
-##process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-##process.load('FWCore.MessageService.MessageLogger_cfi')
-##process.load('Configuration.EventContent.EventContent_cff')
-##process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-##process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-##process.load('Configuration.StandardSequences.GeometrySimDB_cff')
-##process.load('Configuration.StandardSequences.MagneticField_cff')
-##process.load('Configuration.StandardSequences.Generator_cff')
-##process.load('IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi')
-##process.load('GeneratorInterface.Core.genFilterSummary_cff')
-##process.load('Configuration.StandardSequences.SimIdeal_cff')
-##process.load('Configuration.StandardSequences.EndOfProcess_cff')
-##process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.EventContent.EventContentHeavyIons_cff')
-##process.load('SimGeneral.MixingModule.HiMixGEN_cff')
+process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('GeneratorInterface.HiGenCommon.VtxSmearedMatchHI_cff')
-process.load('Configuration.StandardSequences.GeneratorMix_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
@@ -46,35 +32,6 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("EmptySource")
-
-##process.options = cms.untracked.PSet(
-##    FailPath = cms.untracked.vstring(),
-##    IgnoreCompletely = cms.untracked.vstring(),
-##    Rethrow = cms.untracked.vstring(),
-##    SkipEvent = cms.untracked.vstring(),
-##    allowUnscheduled = cms.obsolete.untracked.bool,
-##    canDeleteEarly = cms.untracked.vstring(),
-##    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
-##    dumpOptions = cms.untracked.bool(False),
-##    emptyRunLumiMode = cms.obsolete.untracked.string,
-##    eventSetup = cms.untracked.PSet(
-##        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
-##            allowAnyLabel_=cms.required.untracked.uint32
-##        ),
-##        numberOfConcurrentIOVs = cms.untracked.uint32(0)
-##    ),
-##    fileMode = cms.untracked.string('FULLMERGE'),
-##    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
-##    makeTriggerResults = cms.obsolete.untracked.bool,
-##    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
-##    numberOfConcurrentRuns = cms.untracked.uint32(1),
-##    numberOfStreams = cms.untracked.uint32(0),
-##    numberOfThreads = cms.untracked.uint32(1),
-##    printDependencies = cms.untracked.bool(False),
-##    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
-##    throwIfIllegalParameter = cms.untracked.bool(True),
-##    wantSummary = cms.untracked.bool(False)
-##)
 
 process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring(),
@@ -105,10 +62,9 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
-
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('Configuration/Generator/python/Hydjet_Quenched_MB_5020GeV_cfi.py nevts:100'),
+    annotation = cms.untracked.string('Configuration/Generator/python/Hydjet_Quenched_MinBias_5020GeV_cfi.py nevts:10'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -382,21 +338,20 @@ process.generator = cms.EDFilter("HydjetGeneratorFilter",
     aBeamTarget = cms.double(208.0),
     allowEmptyEvents = cms.bool(False),
     angularSpectrumSelector = cms.int32(1),
-    bFixed = cms.double(12),
+    bFixed = cms.double(0),
     bMax = cms.double(30),
     bMin = cms.double(0),
-    cFlag = cms.int32(1), ##1 for MB events ##0 will use bFixed
+    cFlag = cms.int32(1),
     comEnergy = cms.double(5020.0),
     doCollisionalEnLoss = cms.bool(True),
     doRadiativeEnLoss = cms.bool(True),
-    embeddingMode = cms.bool(False),
+    embeddingMode = cms.int32(0),
     fracSoftMultiplicity = cms.double(1.0),
     hadronFreezoutTemperature = cms.double(0.125),
     hydjetMode = cms.string('kHydroQJets'),
     maxLongitudinalRapidity = cms.double(4.5),
     maxTransverseRapidity = cms.double(1.25),
     nMultiplicity = cms.int32(25000),
-    numQuarkFlavor = cms.int32(0),
     qgpInitialTemperature = cms.double(1.1),
     qgpNumQuarkFlavor = cms.int32(0),
     qgpProperTimeFormation = cms.double(0.1),
@@ -417,15 +372,19 @@ process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.RAWSIMoutput_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
-
-#Setup FWK for multithreaded
-process.options.numberOfThreads = 8
-process.options.numberOfStreams = 0
-process.options.numberOfConcurrentLuminosityBlocks = 1
-process.options.eventSetup.numberOfConcurrentIOVs = 1
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path).insert(0, process.generator)
+
+# customisation of the process.
+
+# Automatic addition of the customisation function from Configuration.DataProcessing.Utils
+from Configuration.DataProcessing.Utils import addMonitoring 
+
+#call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
+process = addMonitoring(process)
+
+# End of customisation functions
 
 
 # Customisation from command line

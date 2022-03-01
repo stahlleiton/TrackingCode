@@ -107,15 +107,6 @@ process.options.eventSetup.numberOfConcurrentIOVs = 1
 
 # customisation of the process.
 
-# Automatic addition of the customisation function from Configuration.DataProcessing.Utils
-###from Configuration.DataProcessing.Utils import addMonitoring 
-
-#call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
-###process = addMonitoring(process)
-
-# End of customisation functions
-
-
 # Customisation from command line
 
 #Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule
