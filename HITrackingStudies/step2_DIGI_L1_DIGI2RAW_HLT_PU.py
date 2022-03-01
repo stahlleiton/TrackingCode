@@ -1,13 +1,8 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step2 --conditions auto:phase1_2018_realistic -s DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2 --datatier GEN-SIM-DIGI-RAW-HLTDEBUG --pileup HiMixNoPU -n 2 --era Run2_2018_pp_on_AA --eventcontent FEVTDEBUGHLT --filein file:step1.root --fileout file:step2.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Era_Run3_pp_on_PbPb_cff import Run3_pp_on_PbPb
 
-process = cms.Process('HLT',eras.Run2_2018_pp_on_AA)
+process = cms.Process('HLT',Run3_pp_on_PbPb)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -25,42 +20,68 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
+    input = cms.untracked.int32(-1),
+    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('file:step1.root'),
-    inputCommands = cms.untracked.vstring(
-        'keep *', 
-        'drop *_genParticles_*_*', 
-        'drop *_genParticlesForJets_*_*', 
-        'drop *_kt4GenJets_*_*', 
-        'drop *_kt6GenJets_*_*', 
-        'drop *_iterativeCone5GenJets_*_*', 
-        'drop *_ak4GenJets_*_*', 
-        'drop *_ak7GenJets_*_*', 
-        'drop *_ak8GenJets_*_*', 
-        'drop *_ak4GenJetsNoNu_*_*', 
-        'drop *_ak8GenJetsNoNu_*_*', 
-        'drop *_genCandidatesForMET_*_*', 
-        'drop *_genParticlesForMETAllVisible_*_*', 
-        'drop *_genMetCalo_*_*', 
-        'drop *_genMetCaloAndNonPrompt_*_*', 
-        'drop *_genMetTrue_*_*', 
-        'drop *_genMetIC5GenJs_*_*'
-    ),
+    fileNames = cms.untracked.vstring('file:fileout_step1.root'),
+    ##inputCommands = cms.untracked.vstring(
+    ##    'keep *',
+    ##    'drop *_genParticles_*_*',
+    ##    'drop *_genParticlesForJets_*_*',
+    ##    'drop *_kt4GenJets_*_*',
+    ##    'drop *_kt6GenJets_*_*',
+    ##    'drop *_iterativeCone5GenJets_*_*',
+    ##    'drop *_ak4GenJets_*_*',
+    ##    'drop *_ak7GenJets_*_*',
+    ##    'drop *_ak8GenJets_*_*',
+    ##    'drop *_ak4GenJetsNoNu_*_*',
+    ##    'drop *_ak8GenJetsNoNu_*_*',
+    ##    'drop *_genCandidatesForMET_*_*',
+    ##    'drop *_genParticlesForMETAllVisible_*_*',
+    ##    'drop *_genMetCalo_*_*',
+    ##    'drop *_genMetCaloAndNonPrompt_*_*',
+    ##    'drop *_genMetTrue_*_*',
+    ##    'drop *_genMetIC5GenJs_*_*'
+    ##),
     secondaryFileNames = cms.untracked.vstring()
 )
 
 process.options = cms.untracked.PSet(
-
+    FailPath = cms.untracked.vstring(),
+    IgnoreCompletely = cms.untracked.vstring(),
+    Rethrow = cms.untracked.vstring(),
+    SkipEvent = cms.untracked.vstring(),
+    allowUnscheduled = cms.obsolete.untracked.bool,
+    canDeleteEarly = cms.untracked.vstring(),
+    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
+    dumpOptions = cms.untracked.bool(False),
+    emptyRunLumiMode = cms.obsolete.untracked.string,
+    eventSetup = cms.untracked.PSet(
+        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+            allowAnyLabel_=cms.required.untracked.uint32
+        ),
+        numberOfConcurrentIOVs = cms.untracked.uint32(0)
+    ),
+    fileMode = cms.untracked.string('FULLMERGE'),
+    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    makeTriggerResults = cms.obsolete.untracked.bool,
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+    printDependencies = cms.untracked.bool(False),
+    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
+    throwIfIllegalParameter = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(False)
 )
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('step2 nevts:2'),
+    annotation = cms.untracked.string('--filein nevts:20'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -69,10 +90,10 @@ process.configurationMetadata = cms.untracked.PSet(
 
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-HLTDEBUG'),
+        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step2.root'),
+    fileName = cms.untracked.string('fileout_step2.root'),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -82,7 +103,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic_hi', '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_hi)
@@ -98,15 +119,28 @@ process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
+#Setup FWK for multithreaded
+process.options.numberOfThreads = 8
+process.options.numberOfStreams = 0
+process.options.numberOfConcurrentLuminosityBlocks = 0
+process.options.eventSetup.numberOfConcurrentIOVs = 1
+
 # customisation of the process.
 
+# Automatic addition of the customisation function from Configuration.DataProcessing.Utils
+from Configuration.DataProcessing.Utils import addMonitoring 
+
+#call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
+process = addMonitoring(process)
+
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
+##from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC 
 
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
-process = customizeHLTforMC(process)
+##process = customizeHLTforMC(process)
 
 # End of customisation functions
+
 
 # Customisation from command line
 

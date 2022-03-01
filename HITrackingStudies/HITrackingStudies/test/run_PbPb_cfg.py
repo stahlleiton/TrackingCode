@@ -5,17 +5,18 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('HITrackingStudies.HITrackingStudies.HITrackCorrectionAnalyzer_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('TrackingCode.HITrackingStudies.HITrackCorrectionAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
+    input = cms.untracked.int32(-1)
 )
 
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True),
+)
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('trk.root')
@@ -29,13 +30,13 @@ process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("generalTracks")
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
-process.load("SimTracker.TrackerHitAssociation.tpClusterProducer_cfi")
+process.load("SimTracker.TrackerHitAssociation.tpClusterProducerDefault_cfi")
+process.tpClusterProducer  = process.tpClusterProducerDefault.clone()
 
 # Input source
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-    fileNames =  cms.untracked.vstring( 'file:../../step3.root'
-)
+    fileNames =  cms.untracked.vstring('file:../../fileout_step3_recodebug.root')
 )
 ### centrality ###
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi") 
@@ -50,7 +51,6 @@ process.HITrackCorrections.trackSrc = cms.InputTag("generalTracks")
 process.HITrackCorrections.vertexSrc = cms.InputTag("offlinePrimaryVertices")
 process.HITrackCorrections.qualityString = cms.string("highPurity")
 process.HITrackCorrections.pfCandSrc = cms.InputTag("particleFlow")
-#process.HITrackCorrections.jetSrc = cms.InputTag("akPu4CaloJets")
 process.HITrackCorrections.jetSrc = cms.InputTag("ak4CaloJets")
 # options
 process.HITrackCorrections.useCentrality = False
@@ -64,8 +64,9 @@ process.HITrackCorrections.dxyErrMax = 3.0
 process.HITrackCorrections.dzErrMax = 3.0
 process.HITrackCorrections.ptErrMax = 0.1
 process.HITrackCorrections.nhitsMin = 11
-process.HITrackCorrections.chi2nMax = 0.15
-process.HITrackCorrections.reso = 0.2
+process.HITrackCorrections.chi2nMax = 0.18
+process.HITrackCorrections.reso = 0.5
+
 #process.HITrackCorrections.crossSection = 1.0 #1.0 is no reweigh
 #algo 
 process.HITrackCorrections.algoParameters = cms.vint32(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30)
@@ -73,18 +74,18 @@ process.HITrackCorrections.algoParameters = cms.vint32(2,3,4,5,6,7,8,9,10,11,12,
 process.HITrackCorrections.vtxWeightParameters = cms.vdouble(0.0306789, 0.427748, 5.16555, 0.0228019, -0.02049, 7.01258 )
 ###
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic_hi', '')
 ###
 
 #forest style analyzers (anaTrack module) (not affected by HITrackCorrections code)
-process.load('HITrackingStudies.AnalyzerCode.trackAnalyzer_cff')
+process.load('TrackingCode.AnalyzerCode.trackAnalyzer_cff')
 ###
 
 process.p = cms.Path(
                       process.tpClusterProducer *
                       process.quickTrackAssociatorByHits *
                       process.tpRecoAssocGeneralTracks *
-                      #process.centralityBin *
-                      process.HITrackCorrections*
+#                      process.centralityBin *
+                      process.HITrackCorrections *
                       process.anaTrack
 )

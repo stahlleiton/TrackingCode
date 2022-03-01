@@ -27,8 +27,7 @@
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 
 // Particle Flow
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"

@@ -14,8 +14,7 @@
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="DataFormats/JetReco"/>
-<use name="SimTracker/Records"/>
-<use name="SimTracker/TrackAssociation"/>
+<use name="SimDataFormats/Associations"/>
 <use name="CLHEP"/>
 <use name="hepmc"/>
 <use name="SimDataFormats/GeneratorProducts"/>

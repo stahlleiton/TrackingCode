@@ -10,6 +10,7 @@
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="RecoBTag/SecondaryVertex"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ServiceRegistry"/>
@@ -21,8 +22,7 @@
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
-<use   name="SimTracker/TrackAssociation"/>
-<use   name="SimTracker/Records"/>
+<use   name="SimDataFormats/Associations"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
