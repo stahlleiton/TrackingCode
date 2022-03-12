@@ -16,6 +16,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/GeneratorProducts"/>

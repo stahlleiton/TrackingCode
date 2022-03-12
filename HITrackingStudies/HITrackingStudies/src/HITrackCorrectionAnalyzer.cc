@@ -2,7 +2,8 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+//#include "FWCore/Framework/interface/EDAnalyzer.h" //cesar
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,11 +43,13 @@
 
 #include "HITrackingStudies/HITrackingStudies/interface/HITrackCorrectionTreeHelper.h"
 
-class HITrackCorrectionAnalyzer : public edm::EDAnalyzer {
+//class HITrackCorrectionAnalyzer : public edm::EDAnalyzer {
+class HITrackCorrectionAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit HITrackCorrectionAnalyzer(const edm::ParameterSet&);
       ~HITrackCorrectionAnalyzer();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); 
       static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
 
    private:
@@ -519,4 +522,43 @@ HITrackCorrectionAnalyzer::endJob()
 {
 }
 
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void HITrackCorrectionAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+   edm::ParameterSetDescription desc;
+   desc.add<edm::InputTag>("trackSrc", {"generalTracks"});
+   desc.add<edm::InputTag>("vertexSrc", {"offlinePrimaryVertices"});
+   desc.add<edm::InputTag>("pfCandSrc", {"particleFlowTmp"});
+   desc.add<edm::InputTag>("jetSrc", {"akPu4CaloJets"}); 
+   desc.add<edm::InputTag>("tpEffSrc", {"mix","MergedTrackTruth"});
+   desc.add<edm::InputTag>("tpFakSrc", {"mix","MergedTrackTruth"}); 
+   desc.add<edm::InputTag>("associatorMap",{"tpRecoAssocGeneralTracks"});
+   desc.add<std::vector<double>>("ptBins",{0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 45.0, 60.0, 90.0, 120.0, 180.0, 300.0, 500.0});
+   desc.add<std::vector<double>>("etaBins",{-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4});
+   desc.add<std::vector<double>>("occBins",{0.0, 40.0, 80.0, 120.0, 160.0, 200.0});
+   desc.add<std::vector<double>>("vtxWeightParameters",{4.49636e-02, 1.36629e-01, 5.30010e+00, 2.50170e-02, 4.59123e-01, 9.64888e+00});
+   desc.add<std::vector<int>>("algoParameters",{4,5,6,7});
+   desc.add<bool>("doCaloMatched", true);
+   desc.add<double>("reso", 2.0);
+   desc.add<double>("crossSection", 1.0);
+   desc.add<bool>("doVtxReweighting", false); 
+   desc.add<bool>("applyVertexZCut", false);
+   desc.add<double>("vertexZMax", 15.0);    
+   desc.add<bool>("applyTrackCuts", true);
+   desc.add<std::string>("qualityString", "highPurity");
+   desc.add<double>("dxyErrMax", 3.0);
+   desc.add<double>("dzErrMax", 3.0);
+   desc.add<double>("ptErrMax", 0.1);
+   desc.add<int>("nhitsMin", 11);
+   desc.add<double>("chi2nMax", 0.15);
+   desc.add<bool>("doMomRes", false);
+   desc.add<bool>("fillNTuples", false);
+   desc.add<bool>("useCentrality", false);
+   desc.add<edm::InputTag>("centralitySrc", {"centralityBin","HFTowers"});
+   descriptions.addWithDefaultLabel(desc);
+}
+
+
+//define this as a plug-in
 DEFINE_FWK_MODULE(HITrackCorrectionAnalyzer);

@@ -15,13 +15,14 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -231,16 +232,19 @@ struct TrackEvent{
   int matchedGenID[MAXTRACKS][MAXMATCH];
 };
 
-class TrackAnalyzer : public edm::EDAnalyzer {
+//class TrackAnalyzer : public edm::EDAnalyzer {
+class TrackAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
 public:
   explicit TrackAnalyzer(const edm::ParameterSet&);
   ~TrackAnalyzer();
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); 
+
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void fillVertices(const edm::Event& iEvent);
   void fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -298,6 +302,8 @@ private:
   edm::Service<TFileService> fs;
   edm::ESHandle < ParticleDataTable > pdt;
   edm::Handle<TrackingParticleCollection> trackingParticles;
+
+  //const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_; //cesar 
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
 
@@ -375,6 +381,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   if(doSimVertex_){
     simVertexSrc_ =  consumes<TrackingVertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tpVtxSrc",edm::InputTag("mix","MergedTrackTruth")));
   }
+  //geomToken_ = esConsumes<edm::Transition::EndRun>(); //cesar
   beamSpotProducer_  = consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamSpotSrc",edm::InputTag("offlineBeamSpot")));
   if(doPFMatching_){
     pfCandSrc_ = consumes<PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSrc"));
@@ -399,6 +406,7 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   edm::ESHandle<TrackerGeometry> tGeo;
   iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
+  //auto tGeo = iSetup.getHandle(geomToken_); //cesar
   geo_ = tGeo.product();
   iSetup.getData(pdt);
 
@@ -1294,6 +1302,32 @@ TrackAnalyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void
 TrackAnalyzer::endJob() {
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void TrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+   edm::ParameterSetDescription desc;
+   desc.add<double>("trackPtMin", 0.1);
+   desc.add<double>("simTrackPtMin", 0.1); 
+   desc.add<edm::InputTag>("vertexSrc", {"offlinePrimaryVertices"});
+   desc.add<edm::InputTag>("trackSrc", {"generalTracks"});
+   desc.add<edm::InputTag>("mvaSrc", {"generalTracks","MVAVals"});
+   desc.add<edm::InputTag>("particleSrc", {"genParticles"});
+   desc.add<edm::InputTag>("pfCandSrc", {"particleFlow"}); 
+   desc.add<edm::InputTag>("beamSpotSrc", {"offlineBeamSpot"});
+   desc.add<bool>("doPFMatching", true)->setComment("By default do PF match");
+   desc.add<bool>("doSimTrack", true);
+   desc.add<bool>("doSimVertex", true);
+   desc.add<bool>("fillSimTrack", true);
+   desc.add<bool>("useQuality", false);
+   desc.add<std::vector<string>>("qualityStrings", {"highPurity","tight","loose"});
+   desc.add<edm::InputTag>("tpFakeSrc", {"mix","MergedTrackTruth"});
+   desc.add<edm::InputTag>("tpEffSrc", {"mix","MergedTrackTruth"});  
+   desc.add<edm::InputTag>("associatorMap", {"tpRecoAssocGeneralTracks"});
+   desc.add<bool>("doMVA", false);
+   descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
