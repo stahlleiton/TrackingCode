@@ -2,7 +2,6 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/EDAnalyzer.h" //cesar
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -43,7 +42,6 @@
 
 #include "HITrackingStudies/HITrackingStudies/interface/HITrackCorrectionTreeHelper.h"
 
-//class HITrackCorrectionAnalyzer : public edm::EDAnalyzer {
 class HITrackCorrectionAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit HITrackCorrectionAnalyzer(const edm::ParameterSet&);

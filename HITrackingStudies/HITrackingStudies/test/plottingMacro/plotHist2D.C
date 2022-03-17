@@ -6,7 +6,7 @@ void plotHist2D() {
 
   gStyle->SetOptStat(0);
 
-  TFile *f = new TFile("../trk.root");
+  TFile *f = new TFile("trk.root");
 
   char ndir[256] = "HITrackCorrections";
   double ptmax = 100.;

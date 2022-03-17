@@ -253,8 +253,6 @@ private:
 
   int getLayerId(const PSimHit&);
   bool hitDeadPXF(const reco::Track& tr);
-  //const TrackingParticle* doRecoToTpMatch(reco::RecoToSimCollection recSimColl, const reco::TrackRef &in);
-  //vector<int> matchTpToGen(const edm::Event& iEvent, const TrackingParticle* tparticle);
 
   int associateSimhitToTrackingparticle(unsigned int trid );
   bool checkprimaryparticle(const TrackingParticle* tp);
@@ -300,10 +298,9 @@ private:
 
   const TrackerGeometry* geo_;
   edm::Service<TFileService> fs;
-  edm::ESHandle < ParticleDataTable > pdt;
   edm::Handle<TrackingParticleCollection> trackingParticles;
 
-  //const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_; //cesar 
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_esTokenTk; 
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
 
@@ -322,42 +319,37 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
+  :  m_esTokenTk(esConsumes()) {
 
-{
-
-  doTrack_             = iConfig.getUntrackedParameter<bool>  ("doTrack",true);
-  doTrackExtra_             = iConfig.getUntrackedParameter<bool>  ("doTrackExtra",false);
-  doSimTrack_             = iConfig.getUntrackedParameter<bool>  ("doSimTrack",false);
-  fillSimTrack_             = iConfig.getUntrackedParameter<bool>  ("fillSimTrack",false);
-  doSimVertex_             = iConfig.getUntrackedParameter<bool>  ("doSimVertex",false);
-  doHighestPtVertex_             = iConfig.getUntrackedParameter<bool>  ("doHighestPtVertex",true);
+  doTrack_             = iConfig.getParameter<bool>  ("doTrack");
+  doTrackExtra_             = iConfig.getParameter<bool>  ("doTrackExtra");
+  doSimTrack_             = iConfig.getParameter<bool>  ("doSimTrack");
+  fillSimTrack_             = iConfig.getParameter<bool>  ("fillSimTrack");
+  doSimVertex_             = iConfig.getParameter<bool>  ("doSimVertex");
+  doHighestPtVertex_             = iConfig.getParameter<bool>  ("doHighestPtVertex");
 
   if(!doSimTrack_){
     fillSimTrack_ = 0;
     doSimVertex_ = 0;
   }
-  
-  // else{
-    // associateChi2_             = iConfig.getParameter<bool>  ("associateChi2");
-  // }
 
-  doDeDx_             = iConfig.getUntrackedParameter<bool>  ("doDeDx",false);
-  doDebug_             = iConfig.getUntrackedParameter<bool>  ("doDebug",false);
-  doMVA_             = iConfig.getUntrackedParameter<bool>  ("doMVA",false);
+  doDeDx_             = iConfig.getParameter<bool>  ("doDeDx");
+  doDebug_             = iConfig.getParameter<bool>  ("doDebug");
+  doMVA_             = iConfig.getParameter<bool>  ("doMVA");
 
-  doPFMatching_             = iConfig.getUntrackedParameter<bool>  ("doPFMatching",false);
-  doTrackVtxWImpPar_             = iConfig.getUntrackedParameter<bool>  ("doTrackVtxWImpPar",true);
-  useQuality_ = iConfig.getUntrackedParameter<bool>("useQuality",false);
+  doPFMatching_             = iConfig.getParameter<bool>  ("doPFMatching");
+  doTrackVtxWImpPar_             = iConfig.getParameter<bool>  ("doTrackVtxWImpPar");
+  useQuality_ = iConfig.getParameter<bool>("useQuality");
 
-  trackPtMin_             = iConfig.getUntrackedParameter<double>  ("trackPtMin",0.40);
-  trackVtxMaxDistance_             = iConfig.getUntrackedParameter<double>  ("trackVtxMaxDistance",3.0);
-  qualityString_ = iConfig.getUntrackedParameter<std::string>("qualityString","highPurity");
+  trackPtMin_             = iConfig.getParameter<double>  ("trackPtMin");
+  trackVtxMaxDistance_             = iConfig.getParameter<double>  ("trackVtxMaxDistance");
+  qualityString_ = iConfig.getParameter<std::string>("qualityString");
 
-  qualityStrings_ = iConfig.getUntrackedParameter<std::vector<std::string> >("qualityStrings",std::vector<std::string>(0));
+  qualityStrings_ = iConfig.getParameter<std::vector<std::string> >("qualityStrings");
   if(qualityStrings_.size() == 0) qualityStrings_.push_back(qualityString_);
 
-  simTrackPtMin_             = iConfig.getUntrackedParameter<double>  ("simTrackPtMin",0.40);
-  fiducialCut_ = (iConfig.getUntrackedParameter<bool>("fiducialCut",false));
+  simTrackPtMin_             = iConfig.getParameter<double>  ("simTrackPtMin");
+  fiducialCut_ = iConfig.getParameter<bool>("fiducialCut");
   trackSrcLabel_ = iConfig.getParameter<edm::InputTag>("trackSrc");
   trackSrc_ = consumes<vector<Track> > (trackSrcLabel_);
   trackSrcView_ = consumes<edm::View<reco::Track> >(trackSrcLabel_);
@@ -367,8 +359,8 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   }
   if(doSimTrack_){
     particleSrc_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("particleSrc"));
-    //tpFakeSrc_ =  consumes<>(iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("mix","MergedTrackTruth")));
-    tpEffSrc_ =  consumes<TrackingParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tpEffSrc",edm::InputTag("mix","MergedTrackTruth")));
+    //tpFakeSrc_ =  consumes<>(iConfig.getParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("mix","MergedTrackTruth")));
+    tpEffSrc_ =  consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpEffSrc"));
     associatorMapSR_ = consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("associatorMap"));
     associatorMapRS_ = consumes<reco::RecoToSimCollection>(iConfig.getParameter<edm::InputTag>("associatorMap"));
   }
@@ -379,15 +371,14 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     vertexSrc_.push_back(consumes<reco::VertexCollection>(edm::InputTag(vertexSrcString_[i])));
   }
   if(doSimVertex_){
-    simVertexSrc_ =  consumes<TrackingVertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tpVtxSrc",edm::InputTag("mix","MergedTrackTruth")));
+    simVertexSrc_ =  consumes<TrackingVertexCollection>(iConfig.getParameter<edm::InputTag>("tpVtxSrc"));
   }
-  //geomToken_ = esConsumes<edm::Transition::EndRun>(); //cesar
-  beamSpotProducer_  = consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamSpotSrc",edm::InputTag("offlineBeamSpot")));
+  beamSpotProducer_  = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"));
   if(doPFMatching_){
     pfCandSrc_ = consumes<PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSrc"));
   }
   if(doDeDx_){
-    DeDxSrc_ = consumes<DeDxDataValueMap> (iConfig.getUntrackedParameter<edm::InputTag>("DeDxMap"));
+    DeDxSrc_ = consumes<DeDxDataValueMap> (iConfig.getParameter<edm::InputTag>("DeDxMap"));
   }
 
 }
@@ -404,11 +395,8 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get tracker geometry
   //  cout <<"StartFill"<<endl;
 
-  edm::ESHandle<TrackerGeometry> tGeo;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
-  //auto tGeo = iSetup.getHandle(geomToken_); //cesar
-  geo_ = tGeo.product();
-  iSetup.getData(pdt);
+  geo_ = &iSetup.getData(m_esTokenTk);
+
 
   //  cout <<"Got data"<<endl;
   pev_.nEv = (int)iEvent.id().event();
@@ -1311,7 +1299,9 @@ void TrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
    edm::ParameterSetDescription desc;
    desc.add<double>("trackPtMin", 0.1);
    desc.add<double>("simTrackPtMin", 0.1); 
-   desc.add<edm::InputTag>("vertexSrc", {"offlinePrimaryVertices"});
+   desc.add<bool>("doTrack", true);
+   desc.add<bool>("doTrackExtra", false);
+   desc.add<std::vector<string>>("vertexSrc", {"offlinePrimaryVertices"});
    desc.add<edm::InputTag>("trackSrc", {"generalTracks"});
    desc.add<edm::InputTag>("mvaSrc", {"generalTracks","MVAVals"});
    desc.add<edm::InputTag>("particleSrc", {"genParticles"});
@@ -1320,13 +1310,21 @@ void TrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
    desc.add<bool>("doPFMatching", true)->setComment("By default do PF match");
    desc.add<bool>("doSimTrack", true);
    desc.add<bool>("doSimVertex", true);
+   desc.add<bool>("doHighestPtVertex", true);
    desc.add<bool>("fillSimTrack", true);
+   desc.add<bool>("doDeDx", false);
+   desc.add<bool>("doDebug", false);
    desc.add<bool>("useQuality", false);
    desc.add<std::vector<string>>("qualityStrings", {"highPurity","tight","loose"});
    desc.add<edm::InputTag>("tpFakeSrc", {"mix","MergedTrackTruth"});
    desc.add<edm::InputTag>("tpEffSrc", {"mix","MergedTrackTruth"});  
    desc.add<edm::InputTag>("associatorMap", {"tpRecoAssocGeneralTracks"});
    desc.add<bool>("doMVA", false);
+   desc.add<bool>("doTrackVtxWImpPar", true);
+   desc.add<double>("trackVtxMaxDistance", 3.0);
+   desc.add<string>("qualityString", "highPurity");     
+   desc.add<bool>("fiducialCut", false);
+   desc.add<edm::InputTag>("tpVtxSrc", {"mix","MergedTrackTruth"});
    descriptions.addWithDefaultLabel(desc);
 }
 

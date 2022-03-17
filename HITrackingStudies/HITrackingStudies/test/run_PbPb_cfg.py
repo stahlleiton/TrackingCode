@@ -85,7 +85,7 @@ process.p = cms.Path(
                       process.tpClusterProducer *
                       process.quickTrackAssociatorByHits *
                       process.tpRecoAssocGeneralTracks *
-#                      process.centralityBin *
+##                      process.centralityBin *
                       process.HITrackCorrections *
                       process.anaTrack
 )
