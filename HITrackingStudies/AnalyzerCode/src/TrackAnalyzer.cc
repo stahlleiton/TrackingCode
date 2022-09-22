@@ -131,6 +131,7 @@ struct TrackEvent{
   unsigned char trkNHit[MAXTRACKS];
   unsigned char trkNlayer[MAXTRACKS];
   int trkNlayer3D[MAXTRACKS];
+  unsigned char trkNpixellayer[MAXTRACKS];
   bool trkQual[MAXQUAL][MAXTRACKS];
   float trkChi2[MAXTRACKS];
   float trkChi2hit1D[MAXTRACKS];
@@ -192,6 +193,9 @@ struct TrackEvent{
   float pAcc[MAXTRACKS];
   float pAccPair[MAXTRACKS];
   int pCharge[MAXTRACKS];
+  float pVx[MAXTRACKS];
+  float pVy[MAXTRACKS];
+  float pVz[MAXTRACKS];
 
   int pNRec[MAXTRACKS];
   int   pNHit[MAXTRACKS];
@@ -203,6 +207,7 @@ struct TrackEvent{
   int   mtrkNHit[MAXTRACKS];
   int   mtrkNlayer[MAXTRACKS];
   int   mtrkNlayer3D[MAXTRACKS];
+  int   mtrkNpixellayer[MAXTRACKS];
   bool   mtrkQual[MAXQUAL][MAXTRACKS];
   float mtrkChi2[MAXTRACKS];
   int mtrkNdof[MAXTRACKS];
@@ -259,6 +264,7 @@ private:
 
   // ----------member data ---------------------------
 
+  int centrality;
   bool doTrack_;
   bool doTrackExtra_;
   bool doSimTrack_;
@@ -284,9 +290,8 @@ private:
   edm::EDGetTokenT<edm::View<reco::Track> > trackSrcView_;
   edm::EDGetTokenT<vector<Track> > trackSrc_;
   edm::InputTag mvaSrcLabel_;
-  edm::EDGetTokenT<edm::ValueMap<float> > mvaSrc_;
+  edm::EDGetTokenT<std::vector<float>> mvaSrc_;
   edm::EDGetTokenT<reco::GenParticleCollection> particleSrc_;
-  //edm::EDGetTokenT<> tpFakeSrc_;
   edm::EDGetTokenT<TrackingParticleCollection> tpEffSrc_;
   edm::EDGetTokenT<PFCandidateCollection> pfCandSrc_;
   edm::EDGetTokenT<DeDxDataValueMap> DeDxSrc_;
@@ -295,6 +300,9 @@ private:
 
   vector<edm::EDGetTokenT<reco::VertexCollection> > vertexSrc_;
   edm::EDGetTokenT<TrackingVertexCollection> simVertexSrc_;
+
+  bool useCentrality_;
+  edm::EDGetTokenT<int> centralitySrc_; 
 
   const TrackerGeometry* geo_;
   edm::Service<TFileService> fs;
@@ -355,11 +363,10 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   trackSrcView_ = consumes<edm::View<reco::Track> >(trackSrcLabel_);
   if(doMVA_){
     mvaSrcLabel_ = iConfig.getParameter<edm::InputTag>("mvaSrc");
-    mvaSrc_ = consumes<edm::ValueMap<float> > (mvaSrcLabel_);
+    mvaSrc_ = consumes<std::vector<float>>(mvaSrcLabel_);
   }
   if(doSimTrack_){
     particleSrc_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("particleSrc"));
-    //tpFakeSrc_ =  consumes<>(iConfig.getParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("mix","MergedTrackTruth")));
     tpEffSrc_ =  consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpEffSrc"));
     associatorMapSR_ = consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("associatorMap"));
     associatorMapRS_ = consumes<reco::RecoToSimCollection>(iConfig.getParameter<edm::InputTag>("associatorMap"));
@@ -373,6 +380,8 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   if(doSimVertex_){
     simVertexSrc_ =  consumes<TrackingVertexCollection>(iConfig.getParameter<edm::InputTag>("tpVtxSrc"));
   }
+  useCentrality_ = iConfig.getParameter<bool>("useCentrality");
+  centralitySrc_ = consumes<int>(iConfig.getParameter<edm::InputTag>("centralitySrc"));
   beamSpotProducer_  = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"));
   if(doPFMatching_){
     pfCandSrc_ = consumes<PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandSrc"));
@@ -424,6 +433,14 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   trackTree_->Fill();
   //cout <<"Tree filled!"<<endl;
   memset(&pev_,0,sizeof pev_);
+
+  int cbin = -1; 
+  if( useCentrality_ ) {
+     edm::Handle<int> centralityBin;
+     iEvent.getByToken(centralitySrc_, centralityBin);
+     cbin = *centralityBin;
+   }
+   centrality = cbin;
 
 }
 
@@ -572,7 +589,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByToken(DeDxSrc_, DeDxMap);
   }
   
-  Handle<edm::ValueMap<float> > mvaoutput;
+  edm::Handle<std::vector<float>> mvaoutput;
   if(doMVA_){
    iEvent.getByToken(mvaSrc_, mvaoutput);
   }
@@ -652,6 +669,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     pev_.trkNlayer[pev_.nTrk] = etrk.hitPattern().trackerLayersWithMeasurement();
     pev_.trkNlayer3D[pev_.nTrk] = etrk.hitPattern().pixelLayersWithMeasurement() + etrk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+    pev_.trkNpixellayer[pev_.nTrk] = etrk.hitPattern().pixelLayersWithMeasurement();
 
     pev_.trkAlgo[pev_.nTrk] = etrk.algo();
     pev_.trkOriginalAlgo[pev_.nTrk] = etrk.originalAlgo();
@@ -659,17 +677,16 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     if(doMVA_){
-     if(etrk.algo() == 11){ //sets jet-core iteration tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
+     if(etrk.algo() == 13 || etrk.algo() == 14){ //sets muon iterations tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
        if(etrk.quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) pev_.trkMVA[pev_.nTrk] = 1;
        else pev_.trkMVA[pev_.nTrk] = -1;
      }
-     else pev_.trkMVA[pev_.nTrk] = rndDP((*mvaoutput)[trackRef],3);//non algo=11 behavior
+     else pev_.trkMVA[pev_.nTrk] = (*mvaoutput)[it];//non algos=13 or 14 behavior
 	 if(mvaSrcLabel_.label() == "generalTracks")
 	 {
-	   pev_.trkMVALoose[pev_.nTrk] = (!((pev_.trkAlgo[pev_.nTrk] == 4 && pev_.trkMVA[pev_.nTrk] < -0.7) || (pev_.trkAlgo[pev_.nTrk] == 5 && pev_.trkMVA[pev_.nTrk] < -0.1) || (pev_.trkAlgo[pev_.nTrk] == 6 && pev_.trkMVA[pev_.nTrk] < 0.3) || (pev_.trkAlgo[pev_.nTrk] == 7 && pev_.trkMVA[pev_.nTrk] < 0.4) || (pev_.trkAlgo[pev_.nTrk] == 8 && pev_.trkMVA[pev_.nTrk] < -0.2) || (pev_.trkAlgo[pev_.nTrk] == 9 && pev_.trkMVA[pev_.nTrk] < 0.0) ||(pev_.trkAlgo[pev_.nTrk] == 10 && pev_.trkMVA[pev_.nTrk] < -0.3)) || pev_.trkMVA[pev_.nTrk] == -99) &&  etrk.quality(reco::TrackBase::qualityByName("highPurity"));
-	 
-	   pev_.trkMVATight[pev_.nTrk] = (!((pev_.trkAlgo[pev_.nTrk] == 4 && pev_.trkMVA[pev_.nTrk] < -0.7) || (pev_.trkAlgo[pev_.nTrk] == 5 && pev_.trkMVA[pev_.nTrk] < -0.1) || (pev_.trkAlgo[pev_.nTrk] == 6 && pev_.trkMVA[pev_.nTrk] < 0.3) || (pev_.trkAlgo[pev_.nTrk] == 7 && pev_.trkMVA[pev_.nTrk] < 0.5) || (pev_.trkAlgo[pev_.nTrk] == 8 && pev_.trkMVA[pev_.nTrk] < 0.5) || (pev_.trkAlgo[pev_.nTrk] == 9 && pev_.trkMVA[pev_.nTrk] < 0.4) ||(pev_.trkAlgo[pev_.nTrk] == 10 && pev_.trkMVA[pev_.nTrk] < 0)) || pev_.trkMVA[pev_.nTrk] == -99) &&  etrk.quality(reco::TrackBase::qualityByName("highPurity"));
-     }
+           pev_.trkMVALoose[pev_.nTrk] = etrk.quality(reco::TrackBase::qualityByName("highPurity")); 
+	   pev_.trkMVATight[pev_.nTrk] = etrk.quality(reco::TrackBase::qualityByName("highPurity"));
+         }
 	 if(mvaSrcLabel_.label() == "hiGeneralTracks")
 	 {
 	   pev_.trkMVATight[pev_.nTrk] = (!((pev_.trkAlgo[pev_.nTrk] == 4 && pev_.trkMVA[pev_.nTrk] < -0.77) || (pev_.trkAlgo[pev_.nTrk] == 5 && pev_.trkMVA[pev_.nTrk] < 0.35) || (pev_.trkAlgo[pev_.nTrk] == 6 && pev_.trkMVA[pev_.nTrk] < 0.77) || (pev_.trkAlgo[pev_.nTrk] == 7 && pev_.trkMVA[pev_.nTrk] < 0.35)) || pev_.trkMVA[pev_.nTrk] == -99) &&  etrk.quality(reco::TrackBase::qualityByName("highPurity"));
@@ -793,7 +810,7 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(tpEffSrc_,TPCollectionHeff);
   reco::SimToRecoCollection simRecColl;
   edm::Handle<vector<reco::Track> > etracks;
-  Handle<edm::ValueMap<float> > mvaoutput;
+  Handle<std::vector<float> > mvaoutput;
   if(doMVA_){
    iEvent.getByToken(trackSrc_,etracks);
    iEvent.getByToken(mvaSrc_, mvaoutput);
@@ -817,6 +834,9 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
     pev_.pEta[pev_.nParticle] = tp->eta();
     pev_.pPhi[pev_.nParticle] = tp->phi();
     pev_.pPt[pev_.nParticle] = tp->pt();
+    pev_.pVx[pev_.nParticle] = tp->vx();
+    pev_.pVy[pev_.nParticle] = tp->vy();
+    pev_.pVz[pev_.nParticle] = tp->vz();
 
     // Look up association map
     std::vector<std::pair<edm::RefToBase<reco::Track>, double> > rt;
@@ -829,7 +849,8 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
       std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator rtit;
       for (rtit = rt.begin(); rtit != rt.end(); ++rtit)
       {
-	const reco::Track* tmtr = rtit->first.get();
+	//Cesar: if need to test selection can add here or test after using the tree information for matched tracks - Anyways for Fake Rate and AbsEff there is another dedicated code     
+	/*const reco::Track* tmtr = rtit->first.get();
 	if (!(tmtr->quality(reco::TrackBase::qualityByName(qualityString_)))) continue;
 	if(doHighestPtVertex_){
 	  if ((fabs(tmtr->dz(v1)/sqrt(tmtr->dzError()*tmtr->dzError()+pev_.zVtxErr[pev_.maxPtVtx]*pev_.zVtxErr[pev_.maxPtVtx])) < trackVtxMaxDistance_)&&
@@ -844,7 +865,8 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
 	      (tmtr->ptError()/tmtr->pt()<0.3)&&
 	      (fabs(tmtr->eta()) < 2.4)&&
 	      (tmtr->pt() > trackPtMin_)) nrec++;
-	}
+	}*/
+	nrec++;
       }
 
       // remove the association if the track hits the bed region in FPIX
@@ -856,11 +878,13 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
       pev_.pNRec[pev_.nParticle] = nrec;
 
       pev_.mtrkPt[pev_.nParticle] = mtrk->pt();
+      pev_.mtrkEta[pev_.nParticle] = mtrk->eta();
+      pev_.mtrkPhi[pev_.nParticle] = mtrk->phi();
       pev_.mtrkPtError[pev_.nParticle] = mtrk->ptError();
       pev_.mtrkNHit[pev_.nParticle] = mtrk->numberOfValidHits();
       pev_.mtrkNlayer[pev_.nParticle] = mtrk->hitPattern().trackerLayersWithMeasurement();
       pev_.mtrkNlayer3D[pev_.nParticle] = mtrk->hitPattern().pixelLayersWithMeasurement() + mtrk->hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-      // if (mtrk->quality(reco::TrackBase::qualityByName(qualityString_))) pev_.mtrkQual[pev_.nParticle] = 1;
+      pev_.mtrkNpixellayer[pev_.nParticle] = mtrk->hitPattern().pixelLayersWithMeasurement();
       
       for(unsigned int iq = 0; iq < qualityStrings_.size(); ++iq){
         pev_.mtrkQual[iq][pev_.nParticle]=0;
@@ -892,18 +916,17 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
         unsigned ind = mtrk - &((*etracks)[0]);                                                                   
         reco::TrackRef trackRef=reco::TrackRef(etracks,ind);
                                                                                     
-        if(mtrk->algo() == 11){ //sets jet-core iteration tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
+        if(mtrk->algo() == 13 || mtrk->algo() == 14){ //sets muon iterations tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
           if(mtrk->quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) pev_.mtrkMVA[pev_.nParticle] = 1;
           else pev_.mtrkMVA[pev_.nParticle] = -1;
         }
-        else pev_.mtrkMVA[pev_.nParticle] = rndDP((*mvaoutput)[trackRef],3);//non algo=11 behavior
+        else pev_.mtrkMVA[pev_.nParticle] = (*mvaoutput)[ind];//non algos=13 or 14 behavior
 
 	    if(mvaSrcLabel_.label() == "generalTracks")
 	    {
-	     pev_.mtrkMVALoose[pev_.nParticle] = (!((pev_.mtrkAlgo[pev_.nParticle] == 4 && pev_.mtrkMVA[pev_.nParticle] < -0.7) || (pev_.mtrkAlgo[pev_.nParticle] == 5 && pev_.mtrkMVA[pev_.nParticle] < -0.1) || (pev_.mtrkAlgo[pev_.nParticle] == 6 && pev_.mtrkMVA[pev_.nParticle] < 0.3) || (pev_.mtrkAlgo[pev_.nParticle] == 7 && pev_.mtrkMVA[pev_.nParticle] < 0.4) || (pev_.mtrkAlgo[pev_.nParticle] == 8 && pev_.mtrkMVA[pev_.nParticle] < -0.2) || (pev_.mtrkAlgo[pev_.nParticle] == 9 && pev_.mtrkMVA[pev_.nParticle] < 0.0) ||(pev_.mtrkAlgo[pev_.nParticle] == 10 && pev_.mtrkMVA[pev_.nParticle] < -0.3)) || pev_.mtrkMVA[pev_.nParticle] == -99) &&  mtrk->quality(reco::TrackBase::qualityByName("highPurity"));
-	 
-	     pev_.mtrkMVATight[pev_.nParticle] = (!((pev_.mtrkAlgo[pev_.nParticle] == 4 && pev_.mtrkMVA[pev_.nParticle] < -0.7) || (pev_.mtrkAlgo[pev_.nParticle] == 5 && pev_.mtrkMVA[pev_.nParticle] < -0.1) || (pev_.mtrkAlgo[pev_.nParticle] == 6 && pev_.mtrkMVA[pev_.nParticle] < 0.3) || (pev_.mtrkAlgo[pev_.nParticle] == 7 && pev_.mtrkMVA[pev_.nParticle] < 0.5) || (pev_.mtrkAlgo[pev_.nParticle] == 8 && pev_.mtrkMVA[pev_.nParticle] < 0.5) || (pev_.mtrkAlgo[pev_.nParticle] == 9 && pev_.mtrkMVA[pev_.nParticle] < 0.4) ||(pev_.mtrkAlgo[pev_.nParticle] == 10 && pev_.mtrkMVA[pev_.nParticle] < 0)) || pev_.mtrkMVA[pev_.nParticle] == -99) &&  mtrk->quality(reco::TrackBase::qualityByName("highPurity"));
-        }
+	     pev_.mtrkMVALoose[pev_.nParticle] = mtrk->quality(reco::TrackBase::qualityByName("highPurity"));
+             pev_.mtrkMVATight[pev_.nParticle] = mtrk->quality(reco::TrackBase::qualityByName("highPurity")); 
+            }
 	    if(mvaSrcLabel_.label() == "hiGeneralTracks")
 	    {
 	     pev_.mtrkMVATight[pev_.nParticle] = (!((pev_.mtrkAlgo[pev_.nParticle] == 4 && pev_.mtrkMVA[pev_.nParticle] < -0.77) || (pev_.mtrkAlgo[pev_.nParticle] == 5 && pev_.mtrkMVA[pev_.nParticle] < 0.35) || (pev_.mtrkAlgo[pev_.nParticle] == 6 && pev_.mtrkMVA[pev_.nParticle] < 0.77) || (pev_.mtrkAlgo[pev_.nParticle] == 7 && pev_.mtrkMVA[pev_.nParticle] < 0.35)) || pev_.mtrkMVA[pev_.nParticle] == -99) &&  mtrk->quality(reco::TrackBase::qualityByName("highPurity"));
@@ -1111,6 +1134,7 @@ TrackAnalyzer::beginJob()
 
   trackTree_->Branch("nVtx",&pev_.nVtx,"nVtx/I");
   trackTree_->Branch("nTrk",&pev_.nTrk,"nTrk/I");
+  trackTree_->Branch("centrality",&centrality,"centrality/I");
 
   trackTree_->Branch("maxPtVtx",&pev_.maxPtVtx,"maxPtVtx/I");
   trackTree_->Branch("maxMultVtx",&pev_.maxMultVtx,"maxMultVtx/I");
@@ -1145,6 +1169,7 @@ TrackAnalyzer::beginJob()
   trackTree_->Branch("trkPtError",&pev_.trkPtError,"trkPtError[nTrk]/F");
   trackTree_->Branch("trkNHit",&pev_.trkNHit,"trkNHit[nTrk]/b");
   trackTree_->Branch("trkNlayer",&pev_.trkNlayer,"trkNlayer[nTrk]/b");
+  trackTree_->Branch("trkNpixellayer",&pev_.trkNpixellayer,"trkNpixellayer[nTrk]/b");
   trackTree_->Branch("trkEta",&pev_.trkEta,"trkEta[nTrk]/F");
   trackTree_->Branch("trkPhi",&pev_.trkPhi,"trkPhi[nTrk]/F");
   trackTree_->Branch("trkCharge",&pev_.trkCharge,"trkCharge[nTrk]/I");
@@ -1236,16 +1261,21 @@ TrackAnalyzer::beginJob()
       trackTree_->Branch("pEta",&pev_.pEta,"pEta[nParticle]/F");
       trackTree_->Branch("pPhi",&pev_.pPhi,"pPhi[nParticle]/F");
       trackTree_->Branch("pPt",&pev_.pPt,"pPt[nParticle]/F");
+      trackTree_->Branch("pVx",&pev_.pVx,"pVx[nParticle]/F");
+      trackTree_->Branch("pVy",&pev_.pVy,"pVy[nParticle]/F");
+      trackTree_->Branch("pVz",&pev_.pVz,"pVz[nParticle]/F");
       trackTree_->Branch("pAcc",&pev_.pAcc,"pAcc[nParticle]/F");
       trackTree_->Branch("pAccPair",&pev_.pAccPair,"pAccPair[nParticle]/F");
       trackTree_->Branch("pNRec",&pev_.pNRec,"pNRec[nParticle]/I");
       trackTree_->Branch("pNHit",&pev_.pNHit,"pNHit[nParticle]/I");
       trackTree_->Branch("mtrkPt",&pev_.mtrkPt,"mtrkPt[nParticle]/F");
+      trackTree_->Branch("mtrkEta",&pev_.mtrkEta,"mtrkEta[nParticle]/F");
+      trackTree_->Branch("mtrkPhi",&pev_.mtrkPhi,"mtrkPhi[nParticle]/F");
       trackTree_->Branch("mtrkPtError",&pev_.mtrkPtError,"mtrkPtError[nParticle]/F");
       trackTree_->Branch("mtrkNHit",&pev_.mtrkNHit,"mtrkNHit[nParticle]/I");
       trackTree_->Branch("mtrkNlayer",&pev_.mtrkNlayer,"mtrkNlayer[nParticle]/I");
       trackTree_->Branch("mtrkNlayer3D",&pev_.mtrkNlayer3D,"mtrkNlayer3D[nParticle]/I");
-      // trackTree_->Branch("mtrkQual",&pev_.mtrkQual,"mtrkQual[nParticle]/I");
+      trackTree_->Branch("mtrkNpixellayer",&pev_.mtrkNpixellayer,"mtrkNpixellayer[nParticle]/I");
       for(unsigned int i  = 0; i < qualityStrings_.size(); ++i){
         trackTree_->Branch(("m"+qualityStrings_[i]).data(),&pev_.mtrkQual[i],("m"+qualityStrings_[i]+"[nParticle]/O").data());
       }
@@ -1297,8 +1327,8 @@ void TrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
    edm::ParameterSetDescription desc;
-   desc.add<double>("trackPtMin", 0.1);
-   desc.add<double>("simTrackPtMin", 0.1); 
+   desc.add<double>("trackPtMin", 0.0);
+   desc.add<double>("simTrackPtMin", 0.0); 
    desc.add<bool>("doTrack", true);
    desc.add<bool>("doTrackExtra", false);
    desc.add<std::vector<string>>("vertexSrc", {"offlinePrimaryVertices"});
@@ -1307,9 +1337,11 @@ void TrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
    desc.add<edm::InputTag>("particleSrc", {"genParticles"});
    desc.add<edm::InputTag>("pfCandSrc", {"particleFlow"}); 
    desc.add<edm::InputTag>("beamSpotSrc", {"offlineBeamSpot"});
+   desc.add<edm::InputTag>("centralitySrc", {"centralityBin","HFTowers"});
    desc.add<bool>("doPFMatching", true)->setComment("By default do PF match");
    desc.add<bool>("doSimTrack", true);
    desc.add<bool>("doSimVertex", true);
+   desc.add<bool>("useCentrality", false);
    desc.add<bool>("doHighestPtVertex", true);
    desc.add<bool>("fillSimTrack", true);
    desc.add<bool>("doDeDx", false);

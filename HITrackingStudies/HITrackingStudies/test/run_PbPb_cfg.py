@@ -42,7 +42,7 @@ process.source = cms.Source("PoolSource",
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi") 
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
-process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
+##process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
 
 ### Track cuts ###
 # input collections
@@ -53,7 +53,7 @@ process.HITrackCorrections.qualityString = cms.string("highPurity")
 process.HITrackCorrections.pfCandSrc = cms.InputTag("particleFlow")
 process.HITrackCorrections.jetSrc = cms.InputTag("ak4CaloJets")
 # options
-process.HITrackCorrections.useCentrality = False
+process.HITrackCorrections.useCentrality = True
 process.HITrackCorrections.applyTrackCuts = True
 process.HITrackCorrections.fillNTuples = False
 process.HITrackCorrections.applyVertexZCut = False
@@ -69,23 +69,24 @@ process.HITrackCorrections.reso = 0.5
 
 #process.HITrackCorrections.crossSection = 1.0 #1.0 is no reweigh
 #algo 
-process.HITrackCorrections.algoParameters = cms.vint32(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30)
+process.HITrackCorrections.algoParameters = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46)
 # vertex reweight parameters
 process.HITrackCorrections.vtxWeightParameters = cms.vdouble(0.0306789, 0.427748, 5.16555, 0.0228019, -0.02049, 7.01258 )
 ###
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic_hi', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic_hi', '')
 ###
 
 #forest style analyzers (anaTrack module) (not affected by HITrackCorrections code)
 process.load('HITrackingStudies.AnalyzerCode.trackAnalyzer_cff')
+process.anaTrack.useCentrality = True
 ###
 
 process.p = cms.Path(
                       process.tpClusterProducer *
                       process.quickTrackAssociatorByHits *
                       process.tpRecoAssocGeneralTracks *
-##                      process.centralityBin *
+                      process.centralityBin *
                       process.HITrackCorrections *
                       process.anaTrack
 )
