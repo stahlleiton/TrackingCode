@@ -711,7 +711,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       //match tracking particle to the reco particle
       const TrackingParticle* tparticle = doRecoToTpMatch(recSimColl, trackRef);//matchedSim->val[0].first.get();
-      if(!tparticle) pev_.trkFake[pev_.nTrk]=1;
+      if( !tparticle || (tparticle->status() < 0 || tparticle->charge()==0) ) pev_.trkFake[pev_.nTrk]=1;
       else{
         pev_.trkStatus[pev_.nTrk]=tparticle->status();
 	pev_.trkPId[pev_.nTrk]=tparticle->pdgId();
