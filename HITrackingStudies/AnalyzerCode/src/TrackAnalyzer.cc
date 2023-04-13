@@ -159,8 +159,6 @@ struct TrackEvent{
   unsigned char trkAlgo[MAXTRACKS];
   unsigned char trkOriginalAlgo[MAXTRACKS];
   float trkMVA[MAXTRACKS];
-  bool trkMVALoose[MAXTRACKS];
-  bool trkMVATight[MAXTRACKS];
   float dedx[MAXTRACKS];
   int trkCharge[MAXTRACKS];
   unsigned char trkNVtx[MAXTRACKS];
@@ -225,8 +223,6 @@ struct TrackEvent{
   int mtrkOriginalAlgo[MAXTRACKS];
   float mtrkMVA[MAXTRACKS];
   int nParticleTimesnVtx;
-  bool mtrkMVATight[MAXTRACKS];
-  bool mtrkMVALoose[MAXTRACKS];
 
   // calo compatibility
   int mtrkPfType[MAXTRACKS];
@@ -682,15 +678,6 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
        else pev_.trkMVA[pev_.nTrk] = -1;
      }
      else pev_.trkMVA[pev_.nTrk] = (*mvaoutput)[it];//non algos=13 or 14 behavior
-	 if(mvaSrcLabel_.label() == "generalTracks")
-	 {
-           pev_.trkMVALoose[pev_.nTrk] = etrk.quality(reco::TrackBase::qualityByName("highPurity")); 
-	   pev_.trkMVATight[pev_.nTrk] = etrk.quality(reco::TrackBase::qualityByName("highPurity"));
-         }
-	 if(mvaSrcLabel_.label() == "hiGeneralTracks")
-	 {
-	   pev_.trkMVATight[pev_.nTrk] = (!((pev_.trkAlgo[pev_.nTrk] == 4 && pev_.trkMVA[pev_.nTrk] < -0.77) || (pev_.trkAlgo[pev_.nTrk] == 5 && pev_.trkMVA[pev_.nTrk] < 0.35) || (pev_.trkAlgo[pev_.nTrk] == 6 && pev_.trkMVA[pev_.nTrk] < 0.77) || (pev_.trkAlgo[pev_.nTrk] == 7 && pev_.trkMVA[pev_.nTrk] < 0.35)) || pev_.trkMVA[pev_.nTrk] == -99) &&  etrk.quality(reco::TrackBase::qualityByName("highPurity"));
-	 }
     }
     // multiplicity variable
     if (pev_.trkQual[0][pev_.nTrk]&&
@@ -912,26 +899,16 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
       }
       if(doMVA_){
         pev_.mtrkMVA[pev_.nParticle] = -99;
-	     if (pev_.mtrkPt[pev_.nParticle]>0) {
-        unsigned ind = mtrk - &((*etracks)[0]);                                                                   
-        reco::TrackRef trackRef=reco::TrackRef(etracks,ind);
+	if (pev_.mtrkPt[pev_.nParticle]>0) {
+           unsigned ind = mtrk - &((*etracks)[0]);                                                                   
+           reco::TrackRef trackRef=reco::TrackRef(etracks,ind);
                                                                                     
-        if(mtrk->algo() == 13 || mtrk->algo() == 14){ //sets muon iterations tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
-          if(mtrk->quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) pev_.mtrkMVA[pev_.nParticle] = 1;
-          else pev_.mtrkMVA[pev_.nParticle] = -1;
+           if(mtrk->algo() == 13 || mtrk->algo() == 14){ //sets muon iterations tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
+              if(mtrk->quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) pev_.mtrkMVA[pev_.nParticle] = 1;
+              else pev_.mtrkMVA[pev_.nParticle] = -1;
+           }
+           else pev_.mtrkMVA[pev_.nParticle] = (*mvaoutput)[ind];//non algos=13 or 14 behavior
         }
-        else pev_.mtrkMVA[pev_.nParticle] = (*mvaoutput)[ind];//non algos=13 or 14 behavior
-
-	    if(mvaSrcLabel_.label() == "generalTracks")
-	    {
-	     pev_.mtrkMVALoose[pev_.nParticle] = mtrk->quality(reco::TrackBase::qualityByName("highPurity"));
-             pev_.mtrkMVATight[pev_.nParticle] = mtrk->quality(reco::TrackBase::qualityByName("highPurity")); 
-            }
-	    if(mvaSrcLabel_.label() == "hiGeneralTracks")
-	    {
-	     pev_.mtrkMVATight[pev_.nParticle] = (!((pev_.mtrkAlgo[pev_.nParticle] == 4 && pev_.mtrkMVA[pev_.nParticle] < -0.77) || (pev_.mtrkAlgo[pev_.nParticle] == 5 && pev_.mtrkMVA[pev_.nParticle] < 0.35) || (pev_.mtrkAlgo[pev_.nParticle] == 6 && pev_.mtrkMVA[pev_.nParticle] < 0.77) || (pev_.mtrkAlgo[pev_.nParticle] == 7 && pev_.mtrkMVA[pev_.nParticle] < 0.35)) || pev_.mtrkMVA[pev_.nParticle] == -99) &&  mtrk->quality(reco::TrackBase::qualityByName("highPurity"));
-	    }
-	   }
       }
       // calo matching info for the matched track
       if(doPFMatching_) {
@@ -1211,11 +1188,6 @@ TrackAnalyzer::beginJob()
   trackTree_->Branch("leadingTrackPt",&pev_.leadingTrackPt,"leadingTrackPt[4]/F");
   if(doMVA_){
    trackTree_->Branch("trkMVA",&pev_.trkMVA,"trkMVA[nTrk]/F");
-   if(mvaSrcLabel_.label() == "generalTracks"){
-    trackTree_->Branch("trkMVALoose",&pev_.trkMVALoose,"trkMVALoose[nTrk]/O");
-    trackTree_->Branch("trkMVATight",&pev_.trkMVATight,"trkMVATight[nTrk]/O");  
-   }
-   if(mvaSrcLabel_.label() == "hiGeneralTracks")    trackTree_->Branch("trkMVATight",&pev_.trkMVATight,"trkMVATight[nTrk]/O");  
   }
   if (doDebug_) {
     trackTree_->Branch("trkNlayer3D",&pev_.trkNlayer3D,"trkNlayer3D[nTrk]/I");
@@ -1298,12 +1270,6 @@ TrackAnalyzer::beginJob()
       }
       if(doMVA_){
  	trackTree_->Branch("mtrkMVA",&pev_.mtrkMVA,"mtrkMVA[nParticle]/F");
-	   
-        if(mvaSrcLabel_.label() == "generalTracks"){
-        trackTree_->Branch("mtrkMVALoose",&pev_.mtrkMVALoose,"mtrkMVALoose[nTrk]/O");
-        trackTree_->Branch("mtrkMVATight",&pev_.mtrkMVATight,"mtrkMVATight[nTrk]/O");  
-       }
-       if(mvaSrcLabel_.label() == "hiGeneralTracks")    trackTree_->Branch("mtrkMVATight",&pev_.mtrkMVATight,"mtrkMVATight[nTrk]/O");  
       }
       if (doPFMatching_) {
 	trackTree_->Branch("mtrkPfType",&pev_.mtrkPfType,"mtrkPfType[nParticle]/I");
