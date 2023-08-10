@@ -1,6 +1,6 @@
 Note that all configs only generate a few events by default; you might have to change the number of events or input files as you wish.
 
-***Very Important*** The configurations below are not suitable for 13_2_X release MC
+***Very Important*** The configurations below are not suitable for 13_2_X MC. They can serve as examples, but are not the latest settings
 
 1) For generating samples:
 code comes from cms driver commands similar as described here:
