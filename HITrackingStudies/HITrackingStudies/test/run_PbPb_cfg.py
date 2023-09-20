@@ -2,11 +2,15 @@
 '''
 sample="MC_RecoDebug","MC_Reco_AOD","MC_MiniAOD","Data_Reco_AOD","Data_MiniAOD"
 n=integer number of events
+runOverStreams=False or False
 
 To run it, please, do e.g.:
     cmsRun run_PbPb_cfg.py sample="Data_Reco_AOD" n=100 runOverStreams=False >& OutPut.txt &
 
 IMPORTANT: only run runOverStreams=True together with sample="Data_Reco_AOD"
+
+To change input files, please, look at pbpb.py file
+
 '''
 
 import FWCore.ParameterSet.Config as cms

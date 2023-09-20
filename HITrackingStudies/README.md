@@ -1,6 +1,25 @@
-Note that all configs only generate a few events by default; you might have to change the number of events or input files as you wish.
+To setup the code, please, follow:
+ssh -XY caber@lxplus8.cern.ch
+export SCRAM_ARCH=el8_amd64_gcc11
+voms-proxy-init -voms cms
 
-***Very Important*** The configurations below are not suitable for 13_2_X MC. They can serve as examples, but are not the latest settings
+cmsrel CMSSW_13_2_4
+cd CMSSW_13_2_4/src
+cmsenv
+
+git clone -b CMSSW_13_2_X_trkAnalysis git@github.com:CesarBernardes/TrackingCode.git .
+
+To prepare the trees and histograms for performance plots, please, use:
+HITrackingStudies/HITrackingStudies/test/run_PbPb_cfg.py
+
+For control plots, see macros:
+HITrackingStudies/HITrackingStudies/test/plottingMacro/macro_control_plots_XXX.C
+
+For efficiency and fake rate use:
+HITrackingStudies/HITrackingStudies/test/plottingMacro/plotHistXXX.C
+
+
+***Very Important*** The configurations below (for full reco) are not suitable for 13_2_X MC. They can serve as examples, but are not the latest settings
 
 1) For generating samples:
 code comes from cms driver commands similar as described here:
@@ -46,7 +65,7 @@ A timing summary can then be found in Timing/TimingModule.txt
 
 
 
-4) Making performance tree and hit matched collections
+4) Making performance tree and hit matched collections (this last for recodebug only)
 Standard tracking group efficiency code + HIForest-style tree for debugging
 
 navigate to the analyzer directory:
@@ -54,7 +73,8 @@ cd HITrackingStudies/test/
 
 edit run_PbPb_cfg.py to get the settings you want (the cuts are the most relevant thing here)
 
-cmsRun run_PbPb_cfg.py
+One example:
+cmsRun run_PbPb_cfg.py sample="Data_Reco_AOD" n=100 runOverStreams=False >& OutPut.txt &
 
 Output file is trk.root
 
@@ -67,3 +87,12 @@ In the 'plottingMacro' directory from the above path:
 root -l -b -q plotHist2D.C
 
 Output plots will be in the 'files' directory. And TGraphs in "test.root" file
+
+
+6) For doing control plots run
+root -l -b -q macro_control_plots_OneSample.C
+root -l -b -q macro_control_plots_signal_vs_fake_MCrecodebugOnly.C
+root -l -b -q macro_control_plots_TwoSamples.C
+root -l -b -q macro_control_plots_ThreeSamples.C
+
+
