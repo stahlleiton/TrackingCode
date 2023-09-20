@@ -14,6 +14,8 @@ cmsenv
 
 git clone -b CMSSW_13_2_X_trkAnalysis git@github.com:CesarBernardes/TrackingCode.git .
 
+scram b -j 8
+
 To prepare the trees and histograms for performance plots, please, use:
 
 HITrackingStudies/HITrackingStudies/test/run_PbPb_cfg.py
