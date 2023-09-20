@@ -1,21 +1,29 @@
-To setup the code, please, follow:
+***To setup the code, please, follow:***
+
 ssh -XY caber@lxplus8.cern.ch
+
 export SCRAM_ARCH=el8_amd64_gcc11
+
 voms-proxy-init -voms cms
 
 cmsrel CMSSW_13_2_4
+
 cd CMSSW_13_2_4/src
+
 cmsenv
 
 git clone -b CMSSW_13_2_X_trkAnalysis git@github.com:CesarBernardes/TrackingCode.git .
 
 To prepare the trees and histograms for performance plots, please, use:
+
 HITrackingStudies/HITrackingStudies/test/run_PbPb_cfg.py
 
 For control plots, see macros:
+
 HITrackingStudies/HITrackingStudies/test/plottingMacro/macro_control_plots_XXX.C
 
 For efficiency and fake rate use:
+
 HITrackingStudies/HITrackingStudies/test/plottingMacro/plotHistXXX.C
 
 
@@ -54,8 +62,8 @@ in the procedure below. Please, see the special lines at the very end of the con
 
 
 3) Checking timing
-code written by Cheng-Chieh Peng
 
+code written by Cheng-Chieh Peng
 
 Copy out.txt into the Timing directory, and then run Timing/timeRecord.sh:
 
@@ -66,14 +74,17 @@ A timing summary can then be found in Timing/TimingModule.txt
 
 
 4) Making performance tree and hit matched collections (this last for recodebug only)
+
 Standard tracking group efficiency code + HIForest-style tree for debugging
 
 navigate to the analyzer directory:
+
 cd HITrackingStudies/test/
 
 edit run_PbPb_cfg.py to get the settings you want (the cuts are the most relevant thing here)
 
 One example:
+
 cmsRun run_PbPb_cfg.py sample="Data_Reco_AOD" n=100 runOverStreams=False >& OutPut.txt &
 
 Output file is trk.root
@@ -90,9 +101,13 @@ Output plots will be in the 'files' directory. And TGraphs in "test.root" file
 
 
 6) For doing control plots run
+
 root -l -b -q macro_control_plots_OneSample.C
+
 root -l -b -q macro_control_plots_signal_vs_fake_MCrecodebugOnly.C
+
 root -l -b -q macro_control_plots_TwoSamples.C
+
 root -l -b -q macro_control_plots_ThreeSamples.C
 
 
