@@ -23,8 +23,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+//#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -252,8 +252,8 @@ private:
   void fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void matchPFCandToTrack(const edm::Event& iEvent, const edm::EventSetup& iSetup, unsigned it, int & cand_type, float & cand_pt, float & mEcalSum, float & mHcalSum);
 
-  int getLayerId(const PSimHit&);
-  bool hitDeadPXF(const reco::Track& tr);
+  //int getLayerId(const PSimHit&);
+  //bool hitDeadPXF(const reco::Track& tr);
 
   int associateSimhitToTrackingparticle(unsigned int trid );
   bool checkprimaryparticle(const TrackingParticle* tp);
@@ -304,7 +304,7 @@ private:
   edm::Service<TFileService> fs;
   edm::Handle<TrackingParticleCollection> trackingParticles;
 
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_esTokenTk; 
+  //const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_esTokenTk; 
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
 
@@ -322,8 +322,8 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------
-TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
-  :  m_esTokenTk(esConsumes()) {
+TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig){
+  //:  m_esTokenTk(esConsumes()) {
 
   doTrack_             = iConfig.getParameter<bool>  ("doTrack");
   doTrackExtra_             = iConfig.getParameter<bool>  ("doTrackExtra");
@@ -400,7 +400,7 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get tracker geometry
   //  cout <<"StartFill"<<endl;
 
-  geo_ = &iSetup.getData(m_esTokenTk);
+  //geo_ = &iSetup.getData(m_esTokenTk);
 
 
   //  cout <<"Got data"<<endl;
@@ -444,6 +444,8 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 TrackAnalyzer::fillVertices(const edm::Event& iEvent){
 
+  std::cout<<"Hey data!!!"<<std::endl; 
+
   // Vertex 0 : pev_vz[0] MC information from TrackingVertexCollection
   // Vertex 1 - n : Reconstructed Vertex from various of algorithms
 
@@ -461,20 +463,32 @@ TrackAnalyzer::fillVertices(const edm::Event& iEvent){
 
   // Fill reconstructed vertices.
   for(unsigned int iv = 0; iv < vertexSrc_.size(); ++iv){
-    const reco::VertexCollection * recoVertices;
+    /*const reco::VertexCollection * recoVertices;
     edm::Handle<reco::VertexCollection> vertexCollection;
     //cout <<vertexSrc_[iv]<<endl;
     iEvent.getByToken(vertexSrc_[iv],vertexCollection);
-    recoVertices = vertexCollection.product();
+    recoVertices = vertexCollection.product();*/
+    auto recoVertices = iEvent.getHandle( vertexSrc_[iv] );
+    /*math::XYZPoint bestvtx;
+    if ( !recoVertices->empty() ) { 
+	const reco::Vertex& vtx = (*recoVertices)[0];
+        bestvtx = vtx.position();
+    }else{
+       return; 	    
+    }*/	    
     // unsigned int daughter = 0;
     int nVertex = 0;
     unsigned int greatestNtrkVtx = 0;
     unsigned int greatestPtVtx = 0;
 
+    std::cout<<"Hey data 2!!!"<<std::endl;  
+
     nVertex = recoVertices->size();
     pev_.nVtx = nVertex;
     for (int i = 0 ; i< nVertex; ++i){
       pev_.xVtx[i] = (*recoVertices)[i].position().x();
+      std::cout<<"pev_.xVtx[i] : "<<pev_.xVtx[i]<<std::endl;
+      //std::cout<<"bestvtx.x()"<<bestvtx.x()<<std::endl;
       pev_.yVtx[i] = (*recoVertices)[i].position().y();
       pev_.zVtx[i] = (*recoVertices)[i].position().z();
       pev_.xVtxErr[i] = (*recoVertices)[i].xError();
@@ -498,7 +512,7 @@ TrackAnalyzer::fillVertices(const edm::Event& iEvent){
 	  pev_.trkAssocVtx[it*pev_.nVtx+i]=false;
 	  const reco::Track & etrk = (*etracks)[it];
 	  if (etrk.pt()<trackPtMin_) continue;
-	  if(fiducialCut_ && hitDeadPXF(etrk)) continue; // if track hits the dead region, igonore it;
+	  //if(fiducialCut_ && hitDeadPXF(etrk)) continue; // if track hits the dead region, igonore it;
 	  float Dz=etrk.dz(vtx_temp);
 	  float DzError=sqrt(etrk.dzError()*etrk.dzError()+pev_.zVtxErr[i]*pev_.zVtxErr[i]);
 	  float Dxy=etrk.dxy(vtx_temp);
@@ -564,6 +578,7 @@ TrackAnalyzer::fillVertices(const edm::Event& iEvent){
 //--------------------------------------------------------------------------------------------------
 void
 TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+	//std::cout<<"Hey data!!!"<<std::endl;
   Handle<vector<Track> > etracks;
   iEvent.getByToken(trackSrc_, etracks);
   reco::BeamSpot beamSpot;
@@ -603,7 +618,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::TrackRef trackRef=reco::TrackRef(etracks,it);
 
     if (etrk.pt()<trackPtMin_) continue;
-    if(fiducialCut_ && hitDeadPXF(etrk)) continue; // if track hits the dead region, igonore it;
+    //if(fiducialCut_ && hitDeadPXF(etrk)) continue; // if track hits the dead region, igonore it;
 
 
     for(unsigned int iq = 0; iq < qualityStrings_.size(); ++iq){
@@ -626,11 +641,10 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       if ((*ith)->isValid()) {
        if (typeid(*ith) == typeid(SiStripRecHit1D)) ++count1dhits;
-       }
+      }
      }
 	 pev_.trkChi2hit1D[pev_.nTrk]=(etrk.chi2()+count1dhits)/double(etrk.ndof()+count1dhits);
-
-	}
+    }
  
     pev_.trkEta[pev_.nTrk]=rndDP(etrk.eta(),3);
     pev_.trkPhi[pev_.nTrk]=rndDP(etrk.phi(),3);
@@ -859,7 +873,7 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
       // remove the association if the track hits the bed region in FPIX
       // nrec>0 since we don't need it for nrec=0 case
       mtrk = rt.begin()->first.get();
-      if(fiducialCut_ && nrec>0 && hitDeadPXF(*mtrk)) nrec=0;
+      //if(fiducialCut_ && nrec>0 && hitDeadPXF(*mtrk)) nrec=0;
 
       // Fill matched rec track info
       pev_.pNRec[pev_.nParticle] = nrec;
@@ -923,7 +937,7 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     // remove the association if the track hits the bed region in FPIX
     // nrec>0 since we don't need it for nrec=0 case
-    if(fiducialCut_ && nrec>0 && hitDeadPXF(*mtrk)) nrec=0;
+    //if(fiducialCut_ && nrec>0 && hitDeadPXF(*mtrk)) nrec=0;
     //cout << "simtrk: " << tp->pdgId() << " pt: " << tp->pt() << " nrec: " << nrec << endl;
 
     // Fill matched rec track info
@@ -1030,7 +1044,7 @@ TrackAnalyzer::matchPFCandToTrack(const edm::Event& iEvent, const edm::EventSetu
 
 
 // ------------
-int
+/*int
 TrackAnalyzer::getLayerId(const PSimHit & simHit)
 {
   unsigned int id = simHit.detUnitId();
@@ -1052,7 +1066,8 @@ TrackAnalyzer::getLayerId(const PSimHit & simHit)
   // strip
   return -1;
 }
-
+*/
+/*
 // ---------------
 bool
 TrackAnalyzer::hitDeadPXF(const reco::Track& tr){
@@ -1092,7 +1107,7 @@ TrackAnalyzer::hitDeadPXF(const reco::Track& tr){
 
   return hitDeadRegion;
 }
-
+*/
 // ------------ method called once each job just before starting event loop  ------------
 void
 TrackAnalyzer::beginJob()

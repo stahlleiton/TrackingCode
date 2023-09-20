@@ -19,10 +19,10 @@ HITrackCorrections = cms.EDAnalyzer('HITrackCorrectionAnalyzer',
         180.0, 300.0, 500.0
     ),
     etaBins = cms.vdouble( 
-        -2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0,
-        0.4, 0.8, 1.2, 1.6, 2.0, 2.4
+        -3.0, -2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0,
+        0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 3.0
     ),
-    occBins = cms.vdouble(0.0, 40.0, 80.0, 120.0, 160.0, 200.0),
+    occBins = cms.vdouble(0.0, 20.0, 40.0, 60.0, 80.0, 100.0, 120.0, 140.0, 160.0, 180.0, 200.0),
     vtxWeightParameters = cms.vdouble( 4.49636e-02, 1.36629e-01, 5.30010e+00,
                                        2.50170e-02, 4.59123e-01, 9.64888e+00 ),
     algoParameters = cms.vint32(4,5,6,7),
