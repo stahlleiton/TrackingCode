@@ -9,8 +9,8 @@ pbpb_mc_reco_aod=[
 ]
 
 pbpb_mc_miniaod=[
-'',
-''
+'/store/mc/HINPbPbSpring23MiniAOD/MinBias_Drum5F_5p36TeV_hydjet/MINIAODSIM/Pilot_130X_mcRun3_2023_realistic_HI_v14-v2/2830000/1c72d65c-5077-4037-bee2-596f569f0ff2.root',
+'/store/mc/HINPbPbSpring23MiniAOD/MinBias_Drum5F_5p36TeV_hydjet/MINIAODSIM/Pilot_130X_mcRun3_2023_realistic_HI_v14-v2/2830000/3b34a38f-8483-4d64-8139-223e77b1afae.root'
 ]
 
 pbpb_data_reco_aod=[

@@ -30,5 +30,10 @@ anaTrack = cms.EDAnalyzer('TrackAnalyzer',
                           fiducialCut = cms.bool(False),
                           tpVtxSrc = cms.InputTag("mix","MergedTrackTruth"),
                           useCentrality = cms.bool(False),
-                          centralitySrc = cms.InputTag("centralityBin","HFtowers")
+                          centralitySrc = cms.InputTag("centralityBin","HFtowers"),
+                          runMiniAOD = cms.bool(False),
+                          chi2Map = cms.InputTag('packedPFCandidateTrackChi2'),
+                          packedCandSrc = cms.InputTag('packedPFCandidates'),
+                          lostTracksSrc = cms.InputTag('lostTracks'),
+                          chi2MapLost = cms.InputTag('lostTrackChi2')
                           )

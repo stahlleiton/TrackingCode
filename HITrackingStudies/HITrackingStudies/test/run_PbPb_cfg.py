@@ -52,6 +52,11 @@ if options.sample == "Data_Reco_AOD":
     from pbpb import pbpb_data_reco_aod as pbpb
 if options.sample == "Data_Reco_AOD" and options.runOverStreams==True :
     from pbpb import pbpb_data_reco_aod_streams as pbpb
+if options.sample == "Data_MiniAOD":
+    from pbpb import pbpb_data_miniaod as pbpb
+if options.sample == "MC_MiniAOD":
+    from pbpb import pbpb_mc_miniaod as pbpb
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.n)
@@ -144,6 +149,9 @@ if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options
     process.anaTrack.doSimTrack = False
     process.anaTrack.doSimVertex = False
     process.anaTrack.fillSimTrack = False
+    if (options.sample == "MC_MiniAOD" or options.sample == "Data_MiniAOD"):
+        process.anaTrack.runMiniAOD = True
+        process.anaTrack.vertexSrc = cms.vstring(['offlineSlimmedPrimaryVertices'])
 ###
 
 ###trigger selection for data

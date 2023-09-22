@@ -58,6 +58,9 @@
 // Root include files
 #include "TTree.h"
 
+//
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -263,6 +266,7 @@ private:
   int centrality;
   bool doTrack_;
   bool doTrackExtra_;
+  bool runMiniAOD_;
   bool doSimTrack_;
   bool doSimVertex_;
   bool fillSimTrack_;
@@ -308,6 +312,16 @@ private:
 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
 
+  //
+  edm::InputTag packedCandLabel_;
+  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> packedCandSrc_;
+  edm::InputTag lostTracksLabel_;
+  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> lostTracksSrc_;
+  edm::InputTag chi2MapLabel_;
+  edm::EDGetTokenT<edm::ValueMap<float>> chi2Map_;
+  edm::InputTag chi2MapLostLabel_;
+  edm::EDGetTokenT<edm::ValueMap<float>> chi2MapLost_;
+
   // Root object
   TTree* trackTree_;
 
@@ -327,6 +341,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig){
 
   doTrack_             = iConfig.getParameter<bool>  ("doTrack");
   doTrackExtra_             = iConfig.getParameter<bool>  ("doTrackExtra");
+  runMiniAOD_  = iConfig.getParameter<bool>  ("runMiniAOD");
   doSimTrack_             = iConfig.getParameter<bool>  ("doSimTrack");
   fillSimTrack_             = iConfig.getParameter<bool>  ("fillSimTrack");
   doSimVertex_             = iConfig.getParameter<bool>  ("doSimVertex");
@@ -385,6 +400,18 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig){
   if(doDeDx_){
     DeDxSrc_ = consumes<DeDxDataValueMap> (iConfig.getParameter<edm::InputTag>("DeDxMap"));
   }
+
+  //
+  packedCandLabel_ = iConfig.getParameter<edm::InputTag>("packedCandSrc");
+  packedCandSrc_ = consumes<edm::View<pat::PackedCandidate>>(packedCandLabel_);
+
+  lostTracksLabel_ = iConfig.getParameter<edm::InputTag>("lostTracksSrc");
+  lostTracksSrc_ = consumes<edm::View<pat::PackedCandidate>>(lostTracksLabel_);
+
+  chi2MapLabel_ = iConfig.getParameter<edm::InputTag>("chi2Map");
+  chi2Map_ = consumes<edm::ValueMap<float>>(chi2MapLabel_);
+  chi2MapLostLabel_ = iConfig.getParameter<edm::InputTag>("chi2MapLost");
+  chi2MapLost_ = consumes<edm::ValueMap<float>>(chi2MapLostLabel_);
 
 }
 
@@ -606,6 +633,63 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
   pev_.N=0;
   pev_.leadingTrackPt[0]=0;  pev_.leadingTrackPt[1]=0;  pev_.leadingTrackPt[2]=0;  pev_.leadingTrackPt[3]=0;
 
+  //
+  edm::Handle<edm::View<pat::PackedCandidate>> cands;
+  edm::Handle<edm::ValueMap<float>> chi2Map;
+
+  if(runMiniAOD_){ 
+
+  //loop over packed cands, then loop over lost tracks
+  for (int i = 0; i < 2; i++) {
+    if (i == 0) {
+      iEvent.getByToken(packedCandSrc_, cands);
+      iEvent.getByToken(chi2Map_, chi2Map);
+    }
+    if (i == 1) {
+      iEvent.getByToken(lostTracksSrc_, cands);
+      iEvent.getByToken(chi2MapLost_, chi2Map);
+    }
+
+    for (unsigned it = 0; it < cands->size(); ++it) {
+      const pat::PackedCandidate& c = (*cands)[it];
+
+      if (!c.hasTrackDetails())
+        continue;
+
+      reco::Track const& t = c.pseudoTrack();
+
+      pev_.trkEta[pev_.nTrk]=t.eta();
+      pev_.trkPhi[pev_.nTrk]=t.phi();
+      pev_.trkPt[pev_.nTrk]=t.pt();
+      pev_.trkPtError[pev_.nTrk]=t.ptError();
+      pev_.trkCharge[pev_.nTrk]=t.charge();
+      pev_.trkNHit[pev_.nTrk]=t.numberOfValidHits();
+      pev_.trkChi2[pev_.nTrk]=(*chi2Map)[cands->ptrAt(it)];  
+      pev_.trkNlayer[pev_.nTrk] = t.hitPattern().trackerLayersWithMeasurement();
+      pev_.trkNpixellayer[pev_.nTrk] = t.hitPattern().pixelLayersWithMeasurement();
+
+      math::XYZPoint v1(pev_.xVtx[pev_.maxPtVtx],pev_.yVtx[pev_.maxPtVtx], pev_.zVtx[pev_.maxPtVtx]);
+      pev_.trkDz1[pev_.nTrk]=t.dz(v1);
+      pev_.trkDzError1[pev_.nTrk]=sqrt(t.dzError()*t.dzError()+pev_.zVtxErr[pev_.maxPtVtx]*pev_.zVtxErr[pev_.maxPtVtx]);
+      pev_.trkDxy1[pev_.nTrk]=t.dxy(v1);
+      pev_.trkDxyError1[pev_.nTrk]=sqrt(t.dxyError()*t.dxyError()+pev_.xVtxErr[pev_.maxPtVtx]*pev_.yVtxErr[pev_.maxPtVtx]);
+
+      math::XYZPoint v2(pev_.xVtx[pev_.maxMultVtx],pev_.yVtx[pev_.maxMultVtx], pev_.zVtx[pev_.maxMultVtx]);
+      pev_.trkDz2[pev_.nTrk]=t.dz(v2);
+      pev_.trkDzError2[pev_.nTrk]=sqrt(t.dzError()*t.dzError()+pev_.zVtxErr[pev_.maxMultVtx]*pev_.zVtxErr[pev_.maxMultVtx]);
+      pev_.trkDxy2[pev_.nTrk]=t.dxy(v2);
+      pev_.trkDxyError2[pev_.nTrk]=sqrt(t.dxyError()*t.dxyError()+pev_.xVtxErr[pev_.maxMultVtx]*pev_.yVtxErr[pev_.maxMultVtx]);
+
+      pev_.trkDxyBS[pev_.nTrk]=t.dxy(beamSpot.position());
+      pev_.trkDxyErrorBS[pev_.nTrk]=sqrt(t.dxyError()*t.dxyError()+beamSpot.BeamWidthX()*beamSpot.BeamWidthY());
+
+      pev_.nTrk++; 
+    }  
+
+  }	  
+
+  }else{	  
+
   for(unsigned it=0; it<etracks->size(); ++it){
     const reco::Track & etrk = (*etracks)[it];
     reco::TrackRef trackRef=reco::TrackRef(etracks,it);
@@ -777,7 +861,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
     pev_.nTrk++;
   }
-
+  }
 
 }
 
@@ -1305,6 +1389,7 @@ void TrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
    desc.add<double>("simTrackPtMin", 0.0); 
    desc.add<bool>("doTrack", true);
    desc.add<bool>("doTrackExtra", false);
+   desc.add<bool>("runMiniAOD", false);
    desc.add<std::vector<string>>("vertexSrc", {"offlinePrimaryVertices"});
    desc.add<edm::InputTag>("trackSrc", {"generalTracks"});
    desc.add<edm::InputTag>("mvaSrc", {"generalTracks","MVAVals"});
@@ -1331,6 +1416,13 @@ void TrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
    desc.add<string>("qualityString", "highPurity");     
    desc.add<bool>("fiducialCut", false);
    desc.add<edm::InputTag>("tpVtxSrc", {"mix","MergedTrackTruth"});
+   desc.add<edm::InputTag>("packedCandSrc", edm::InputTag("packedPFCandidates"))
+      ->setComment("packed PF candidates collection");
+   desc.add<edm::InputTag>("lostTracksSrc", edm::InputTag("lostTracks"))->setComment("lost tracks collection");
+   desc.add<edm::InputTag>("chi2Map", edm::InputTag("packedPFCandidateTrackChi2"))
+      ->setComment("packed PF candidates normChi2 map");
+   desc.add<edm::InputTag>("chi2MapLost", edm::InputTag("lostTrackChi2"))
+      ->setComment("lost tracks normChi2 map");
    descriptions.addWithDefaultLabel(desc);
 }
 
