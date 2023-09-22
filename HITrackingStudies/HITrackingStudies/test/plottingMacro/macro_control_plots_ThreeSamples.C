@@ -1,18 +1,19 @@
 ///Please, run it by doing: <<root -l -b -q macro_control_plots_ThreeSamples.C>>
 ///Usually, depending on the number of events you processed & selections, will be needed to adjust y-axis range
-///Run in a MC Recodebug-only tree produced by: "HITrackingStudies/HITrackingStudies/test/run_PbPb_cfg.py"
+///Run in Recodebug, Reco, AOD, MiniAOD MC and Data samples produced by: "HITrackingStudies/HITrackingStudies/test/run_PbPb_cfg.py"
 ///Please, change name of input files below variables "fileName1" and "fileName2" and "fileName3"
 
 ///*** Important parameters
-bool selecAlgo = false; //if true will do all plots (except N-1 plots) for a specific iteration, defined in the variable algoToPlot below
+bool runOnMiniAOD = true;
+bool selecAlgo = false; //if true will do all plots (except N-1 plots) for a specific iteration, defined in the variable algoToPlot below. Please, use false for MiniAOD
 int algoToPlot = 22;
 //select centrality range (in 0 - 100% range) that want to see the control plots 
 int cent_min = 0;
 int cent_max = 100;
 //input file
-auto fileName1 = "trk_Data_Reco_AOD.root"; //ratio plots are fileName1/fileName2, fileName1/fileName3
-auto fileName2 = "trk_MC_Reco_AOD.root";
-auto fileName3 = "trk_MC_RecoDebug.root";
+auto fileName1 = "trk.root"; //ratio plots are fileName1/fileName2, fileName1/fileName3
+auto fileName2 = "trk.root";
+auto fileName3 = "trk.root";
 
 ///Auxiliar functions
 
@@ -21,9 +22,13 @@ std::vector<float> func_select_trks( ROOT::VecOps::RVec<Float_t> vec_ori, ROOT::
    std::vector<float> v;
    for (int i = 0; i < vec_ori.size(); i++){
       if(selecAlgo){     
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]);
+         if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]);
       }else{
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+	 if(runOnMiniAOD){     
+            v.push_back(vec_ori[i]);		 
+	 }else{
+	    if ( vec_trk_hp[i] ) v.push_back(vec_ori[i]);	 
+	 }
       }
    }
    return v;
@@ -34,9 +39,13 @@ std::vector<float> func_ratio_select_trks( ROOT::VecOps::RVec<Float_t> vec_num, 
    std::vector<float> v;
    for (int i = 0; i < vec_num.size(); i++){
       if(selecAlgo){     
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_num[i]/vec_den[i]);
+         if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_num[i]/vec_den[i]);
       }else{
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]);		 
+	 if(runOnMiniAOD){
+            v.push_back(vec_num[i]/vec_den[i]);		 
+	 }else{ 
+	    if ( vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]); 	 
+         }
       }
    }
    return v;
@@ -47,9 +56,13 @@ std::vector<float> func_chi2_select_trks( ROOT::VecOps::RVec<Float_t> vec_chi2, 
    std::vector<float> v;
    for (int i = 0; i < vec_chi2.size(); i++){
       if(selecAlgo){     
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+         if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
       }else{
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);		 
+	 if(runOnMiniAOD){
+            v.push_back(vec_chi2[i]/vec_nlayers[i]);		 
+	 }else{   	 
+            if ( vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);		 
+	 }
       }
    }
    return v;
@@ -182,7 +195,7 @@ const float hist_Yrange_min[N_variables]={0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.
 const float hist_Yrange_max[N_variables]={10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000}; //Maximum of the y-axis
 const float histNorm_Yrange_min[N_variables]={0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001}; //Minimum of the y-axis range
 const float histNorm_Yrange_max[N_variables]={0.15,0.03,0.03,0.30,0.30,0.30,0.30,0.12,0.30,0.30,0.30,0.30,0.30,0.15}; //Maximum of the y-axis range 
-TString fig_name[N_variables]={"hist_pt_allTrks_TwoSamples_NoSel.pdf","hist_eta_allTrks_TwoSamples_NoSel.pdf","hist_phi_allTrks_TwoSamples_NoSel.pdf","hist_nhits_allTrks_TwoSamples_NoSel.pdf","hist_dZsig_allTrks_TwoSamples_NoSel.pdf","hist_dXYsig_allTrks_TwoSamples_NoSel.pdf","hist_pTres_allTrks_TwoSamples_NoSel.pdf","hist_chi2_allTrks_TwoSamples_NoSel.pdf","hist_algo_allTrks_TwoSamples_NoSel.pdf","hist_nhits_allTrks_TwoSamples_NimusOneCuts.pdf","hist_dZsig_allTrks_TwoSamples_NimusOneCuts.pdf","hist_dXYsig_allTrks_TwoSamples_NimusOneCuts.pdf","hist_pTres_allTrks_TwoSamples_NimusOneCuts.pdf","hist_chi2_allTrks_TwoSamples_NimusOneCuts.pdf"}; //Name of the figure file with the histograms saved
+TString fig_name[N_variables]={"hist_pt_allTrks_ThreeSamples_NoSel.pdf","hist_eta_allTrks_ThreeSamples_NoSel.pdf","hist_phi_allTrks_ThreeSamples_NoSel.pdf","hist_nhits_allTrks_ThreeSamples_NoSel.pdf","hist_dZsig_allTrks_ThreeSamples_NoSel.pdf","hist_dXYsig_allTrks_ThreeSamples_NoSel.pdf","hist_pTres_allTrks_ThreeSamples_NoSel.pdf","hist_chi2_allTrks_ThreeSamples_NoSel.pdf","hist_algo_allTrks_ThreeSamples_NoSel.pdf","hist_nhits_allTrks_ThreeSamples_NimusOneCuts.pdf","hist_dZsig_allTrks_ThreeSamples_NimusOneCuts.pdf","hist_dXYsig_allTrks_ThreeSamples_NimusOneCuts.pdf","hist_pTres_allTrks_ThreeSamples_NimusOneCuts.pdf","hist_chi2_allTrks_ThreeSamples_NimusOneCuts.pdf"}; //Name of the figure file with the histograms saved
 auto yaxis_label1 = "Normalized Distributions"; //y-axis label integral histos
 
 //Book histograms using RDataFrame, plot and save the figure in a PDF format

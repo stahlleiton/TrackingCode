@@ -1,17 +1,18 @@
 ///Please, run it by doing: <<root -l -b -q macro_control_plots_TwoSamples.C>>
 ///Usually, depending on the number of events you processed & selections, will be needed to adjust y-axis range
-///Run in a MC Recodebug-only tree produced by: "HITrackingStudies/HITrackingStudies/test/run_PbPb_cfg.py"
+///Run in Recodebug, Reco, AOD, MiniAOD MC and Data samples produced by: "HITrackingStudies/HITrackingStudies/test/run_PbPb_cfg.py"
 ///Please, change name of input files below variables "fileName1" and "fileName2"
 
 ///*** Important parameters
-bool selecAlgo = false; //if true will do all plots (except N-1 plots) for a specific iteration, defined in the variable algoToPlot below
+bool runOnMiniAOD = true;
+bool selecAlgo = false; //if true will do all plots (except N-1 plots) for a specific iteration, defined in the variable algoToPlot below. Please, use false for MiniAOD
 int algoToPlot = 22;
 //select centrality range (in 0 - 100% range) that want to see the control plots 
 int cent_min = 0;
 int cent_max = 100;
 //input file
-auto fileName1 = "trk_Data_Reco_AOD.root"; //ratio plots are fileName1/fileName2
-auto fileName2 = "trk_MC_Reco_AOD.root";
+auto fileName1 = "trk.root"; //ratio plots are fileName1/fileName2
+auto fileName2 = "trk.root";
 
 ///Auxiliar functions
 
@@ -20,9 +21,13 @@ std::vector<float> func_select_trks( ROOT::VecOps::RVec<Float_t> vec_ori, ROOT::
    std::vector<float> v;
    for (int i = 0; i < vec_ori.size(); i++){
       if(selecAlgo){     
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]);
+         if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]);
       }else{
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+	 if(runOnMiniAOD){     
+            v.push_back(vec_ori[i]);		 
+	 }else{
+            if ( vec_trk_hp[i] ) v.push_back(vec_ori[i]); 		 
+	 }
       }
    }
    return v;
@@ -33,9 +38,13 @@ std::vector<float> func_ratio_select_trks( ROOT::VecOps::RVec<Float_t> vec_num, 
    std::vector<float> v;
    for (int i = 0; i < vec_num.size(); i++){
       if(selecAlgo){     
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_num[i]/vec_den[i]);
+         if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_num[i]/vec_den[i]);
       }else{
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]);		 
+	 if(runOnMiniAOD){     
+            v.push_back(vec_num[i]/vec_den[i]);		 
+	 }else{
+	    if ( vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]); 	 
+         }
       }
    }
    return v;
@@ -46,9 +55,13 @@ std::vector<float> func_chi2_select_trks( ROOT::VecOps::RVec<Float_t> vec_chi2, 
    std::vector<float> v;
    for (int i = 0; i < vec_chi2.size(); i++){
       if(selecAlgo){     
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+         if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
       }else{
-         if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);		 
+	 if(runOnMiniAOD){
+            v.push_back(vec_chi2[i]/vec_nlayers[i]);		 
+	 }else{
+            if ( vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]); 
+	 }
       }
    }
    return v;
