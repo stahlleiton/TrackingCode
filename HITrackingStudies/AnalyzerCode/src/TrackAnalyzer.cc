@@ -444,8 +444,6 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 TrackAnalyzer::fillVertices(const edm::Event& iEvent){
 
-  std::cout<<"Hey data!!!"<<std::endl; 
-
   // Vertex 0 : pev_vz[0] MC information from TrackingVertexCollection
   // Vertex 1 - n : Reconstructed Vertex from various of algorithms
 
@@ -481,14 +479,10 @@ TrackAnalyzer::fillVertices(const edm::Event& iEvent){
     unsigned int greatestNtrkVtx = 0;
     unsigned int greatestPtVtx = 0;
 
-    std::cout<<"Hey data 2!!!"<<std::endl;  
-
     nVertex = recoVertices->size();
     pev_.nVtx = nVertex;
     for (int i = 0 ; i< nVertex; ++i){
       pev_.xVtx[i] = (*recoVertices)[i].position().x();
-      std::cout<<"pev_.xVtx[i] : "<<pev_.xVtx[i]<<std::endl;
-      //std::cout<<"bestvtx.x()"<<bestvtx.x()<<std::endl;
       pev_.yVtx[i] = (*recoVertices)[i].position().y();
       pev_.zVtx[i] = (*recoVertices)[i].position().z();
       pev_.xVtxErr[i] = (*recoVertices)[i].xError();
@@ -578,7 +572,6 @@ TrackAnalyzer::fillVertices(const edm::Event& iEvent){
 //--------------------------------------------------------------------------------------------------
 void
 TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-	//std::cout<<"Hey data!!!"<<std::endl;
   Handle<vector<Track> > etracks;
   iEvent.getByToken(trackSrc_, etracks);
   reco::BeamSpot beamSpot;
