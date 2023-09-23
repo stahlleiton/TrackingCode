@@ -172,5 +172,5 @@ process.p = cms.Path(
 
 if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
     process.p = cms.Path(process.centralityBin * process.anaTrack)
-    if (options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
+    if (options.sample == "Data_Reco_AOD"):
         process.p = cms.Path(process.hltMB * process.centralityBin * process.anaTrack)
