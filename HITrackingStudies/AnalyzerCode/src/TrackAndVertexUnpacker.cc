@@ -68,15 +68,16 @@ void pat::TrackAndVertexUnpacker::produce(edm::StreamID, edm::Event& iEvent, con
       const auto& cand = (*cands)[iC];
       if (cand.charge() == 0)
         continue;
-      const auto& normChi2 = normChi2Map.isValid() ? normChi2Map->get(cands.id(), iC) : 1.E12;
+      const auto& normChi2 = normChi2Map.isValid() ? normChi2Map->get(cands.id(), iC) : -1;
       const auto& trkAlgo = static_cast<reco::TrackBase::TrackAlgorithm>(cand.trkAlgo());
       const auto& trkOrigAlgo = static_cast<reco::TrackBase::TrackAlgorithm>(cand.trkOriginalAlgo());
       // case: track from packed candidate with track information
       if (cand.hasTrackDetails()) {
         const auto& track = cand.pseudoTrack();
         const auto ndof = track.ndof() != 0 ? track.ndof() : 0.1;
+        const auto chi2 = (normChi2 >= 0 ? normChi2 : track.normalizedChi2()) * ndof;
         // create output track
-        outTracks->emplace_back(normChi2 * ndof,
+        outTracks->emplace_back(chi2,
                                 ndof,
                                 track.referencePoint(),
                                 track.momentum(),
