@@ -155,7 +155,13 @@ if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options
         process.anaTrack.trackSrc = 'unpackedTracksAndVertices'
         process.anaTrack.vertexSrc = cms.vstring(['unpackedTracksAndVertices'])
         process.anaTrack.doMVA = cms.bool(False)
-        process.anaSeq = cms.Sequence(process.unpackedTracksAndVertices * process.anaTrack)
+        process.hiPixelTracks = process.unpackedTracksAndVertices.clone(
+                packedCandidates = cms.VInputTag("hiPixelTracks"),
+                packedCandidateNormChi2Map = cms.VInputTag(""),
+                primaryVertices = cms.InputTag(""),
+                secondaryVertices = cms.InputTag("")
+        )
+        process.anaSeq = cms.Sequence(process.unpackedTracksAndVertices * process.hiPixelTracks * process.anaTrack)
 ###
 
 ###trigger selection for data
