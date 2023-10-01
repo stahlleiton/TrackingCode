@@ -29,7 +29,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
 
 options.register ('sample',
-                  "MC_RecoDebug", # default value
+                  "MC_MiniAOD", # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, bool or float
                   "sample")
@@ -95,7 +95,7 @@ if options.runOverStreams == True :
     )
 
 ### centrality ###
-process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi") 
+process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
 
@@ -123,7 +123,7 @@ process.HITrackCorrections.chi2nMax = 0.18
 process.HITrackCorrections.reso = 0.5
 
 #process.HITrackCorrections.crossSection = 1.0 #1.0 is no reweigh
-#algo 
+#algo
 process.HITrackCorrections.algoParameters = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46)
 # vertex reweight parameters
 process.HITrackCorrections.vtxWeightParameters = cms.vdouble(0.0306789, 0.427748, 5.16555, 0.0228019, -0.02049, 7.01258 )
@@ -145,13 +145,23 @@ process.anaTrack.fillSimTrack = True
 process.anaTrack.doPFMatching = False
 process.anaTrack.doHighestPtVertex = False
 process.anaTrack.doTrackVtxWImpPar = False
+process.anaSeq = cms.Sequence(process.anaTrack)
 if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
     process.anaTrack.doSimTrack = False
     process.anaTrack.doSimVertex = False
     process.anaTrack.fillSimTrack = False
     if (options.sample == "MC_MiniAOD" or options.sample == "Data_MiniAOD"):
-        process.anaTrack.runMiniAOD = True
-        process.anaTrack.vertexSrc = cms.vstring(['offlineSlimmedPrimaryVertices'])
+        process.load('HITrackingStudies.AnalyzerCode.unpackedTracksAndVertices_cfi')
+        process.anaTrack.trackSrc = 'unpackedTracksAndVertices'
+        process.anaTrack.vertexSrc = cms.vstring(['unpackedTracksAndVertices'])
+        process.anaTrack.doMVA = cms.bool(False)
+        process.hiPixelTracks = process.unpackedTracksAndVertices.clone(
+                packedCandidates = cms.VInputTag("hiPixelTracks"),
+                packedCandidateNormChi2Map = cms.VInputTag(""),
+                primaryVertices = cms.InputTag(""),
+                secondaryVertices = cms.InputTag("")
+        )
+        process.anaSeq = cms.Sequence(process.unpackedTracksAndVertices * process.hiPixelTracks * process.anaTrack)
 ###
 
 ###trigger selection for data
@@ -167,10 +177,10 @@ process.p = cms.Path(
                       process.tpRecoAssocGeneralTracks *
                       process.centralityBin *
                       process.HITrackCorrections *
-                      process.anaTrack
+                      process.anaSeq
 )
 
 if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
-    process.p = cms.Path(process.centralityBin * process.anaTrack)
+    process.p = cms.Path(process.centralityBin * process.anaSeq)
     if (options.sample == "Data_Reco_AOD"):
-        process.p = cms.Path(process.hltMB * process.centralityBin * process.anaTrack)
+        process.p = cms.Path(process.hltMB * process.centralityBin * process.anaSeq)
