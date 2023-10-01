@@ -5,9 +5,9 @@ n=integer number of events
 runOverStreams=False or False
 
 To run it, please, do e.g.:
-    cmsRun run_PbPb_cfg.py sample="Data_Reco_AOD" n=100 runOverStreams=False >& OutPut.txt &
+    cmsRun run_PbPb_cfg.py sample="Data_Reco_AOD" n=100 usePixelTrks=False  runOverStreams=False >& OutPut.txt &
 
-IMPORTANT: only run runOverStreams=True together with sample="Data_Reco_AOD"
+IMPORTANT: only run runOverStreams=True together with sample="Data_Reco_AOD". FIXME: this option is not working for now
 
 To change input files, please, look at pbpb.py file
 
@@ -43,6 +43,11 @@ options.register ('runOverStreams',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.bool,          # string, int, bool or float
                   "runOverStreams")
+options.register ('usePixelTrks',
+                  False, # default value
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.bool,          # string, int, bool or float
+                  "usePixelTrks")
 options.parseArguments()
 
 from pbpb import pbpb_mc_recodebug as pbpb
@@ -74,6 +79,8 @@ process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_
 
 process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
 process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("generalTracks")
+if options.usePixelTrks == True:
+    process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("hiConformalPixelTracks")
 
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
@@ -103,6 +110,8 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 # input collections
 process.HITrackCorrections.centralitySrc = cms.InputTag("centralityBin","HFtowers")
 process.HITrackCorrections.trackSrc = cms.InputTag("generalTracks")
+if options.usePixelTrks == True:
+    process.HITrackCorrections.trackSrc = cms.InputTag("hiConformalPixelTracks")
 process.HITrackCorrections.vertexSrc = cms.InputTag("offlinePrimaryVertices")
 process.HITrackCorrections.qualityString = cms.string("highPurity")
 process.HITrackCorrections.pfCandSrc = cms.InputTag("particleFlow")
@@ -110,6 +119,8 @@ process.HITrackCorrections.jetSrc = cms.InputTag("ak4CaloJets")
 # options
 process.HITrackCorrections.useCentrality = True
 process.HITrackCorrections.applyTrackCuts = True
+if options.usePixelTrks == True:
+    process.HITrackCorrections.applyTrackCuts = False
 process.HITrackCorrections.fillNTuples = False
 process.HITrackCorrections.applyVertexZCut = False
 process.HITrackCorrections.doVtxReweighting = False
@@ -129,9 +140,9 @@ process.HITrackCorrections.algoParameters = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11
 process.HITrackCorrections.vtxWeightParameters = cms.vdouble(0.0306789, 0.427748, 5.16555, 0.0228019, -0.02049, 7.01258 )
 ###
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic_hi', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '132X_mcRun3_2023_realistic_HI_v2', '')
 if (options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
-    process.GlobalTag = GlobalTag(process.GlobalTag, '124X_dataRun3_Prompt_v10', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, '132X_dataRun3_Express_v4', '')
 ###
 
 #forest style analyzers (anaTrack module) (not affected by HITrackCorrections code)
@@ -139,6 +150,9 @@ process.load('HITrackingStudies.AnalyzerCode.trackAnalyzer_cff')
 process.anaTrack.useCentrality = True
 process.anaTrack.trackSrc = 'generalTracks'
 process.anaTrack.mvaSrc = cms.InputTag("generalTracks","MVAValues")
+if options.usePixelTrks == True:
+    process.anaTrack.trackSrc = 'hiConformalPixelTracks'
+    process.anaTrack.doMVA = cms.bool(False)
 process.anaTrack.doSimTrack = True
 process.anaTrack.doSimVertex = True
 process.anaTrack.fillSimTrack = True
@@ -158,16 +172,16 @@ if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options
         process.hiPixelTracks = process.unpackedTracksAndVertices.clone(
                 packedCandidates = cms.VInputTag("hiPixelTracks"),
                 packedCandidateNormChi2Map = cms.VInputTag(""),
-                primaryVertices = cms.InputTag(""),
-                secondaryVertices = cms.InputTag("")
         )
+        if options.usePixelTrks == True:
+           process.anaTrack.trackSrc = 'hiPixelTracks'
+           process.anaTrack.vertexSrc = cms.vstring(['hiPixelTracks'])
         process.anaSeq = cms.Sequence(process.unpackedTracksAndVertices * process.hiPixelTracks * process.anaTrack)
-###
 
 ###trigger selection for data
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 process.hltMB = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltMB.HLTPaths = ["HLT_HIMinimumBias_v2"]
+process.hltMB.HLTPaths = ["HLT_HIMinimumBiasHF1AND_v*"]
 process.hltMB.andOr = cms.bool(True)  # True = OR, False = AND between the HLT paths
 process.hltMB.throw = cms.bool(False) # throw exception on unknown path names
 

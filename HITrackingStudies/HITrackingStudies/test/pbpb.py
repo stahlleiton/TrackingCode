@@ -4,13 +4,13 @@ pbpb_mc_recodebug=[
 ]
 
 pbpb_mc_reco_aod=[
-'/store/mc/HINPbPbSpring23Reco/MinBias_Drum5F_5p36TeV_hydjet/AODSIM/Pilot_130X_mcRun3_2023_realistic_HI_v14-v2/2830000/09e06a1c-965c-4f60-a299-765f631b4402.root',
-'/store/mc/HINPbPbSpring23Reco/MinBias_Drum5F_5p36TeV_hydjet/AODSIM/Pilot_130X_mcRun3_2023_realistic_HI_v14-v2/2830000/1e09f8e7-be99-48ba-a3c6-314cc80fc048.root'
+'/store/mc/HINPbPbSpring23Reco/MinBias_Drum5F_5p36TeV_hydjet/AODSIM/NoPU_Pilot2_132X_mcRun3_2023_realistic_HI_v2-v2/2530000/06064221-d995-4cf8-af17-c7ced7ea2b2e.root',
+'/store/mc/HINPbPbSpring23Reco/MinBias_Drum5F_5p36TeV_hydjet/AODSIM/NoPU_Pilot2_132X_mcRun3_2023_realistic_HI_v2-v2/2530000/2170bbf9-5070-43af-9284-7e596aee755e.root'
 ]
 
 pbpb_mc_miniaod=[
-'/store/mc/HINPbPbSpring23MiniAOD/MinBias_Drum5F_5p36TeV_hydjet/MINIAODSIM/Pilot_130X_mcRun3_2023_realistic_HI_v14-v2/2830000/1c72d65c-5077-4037-bee2-596f569f0ff2.root',
-'/store/mc/HINPbPbSpring23MiniAOD/MinBias_Drum5F_5p36TeV_hydjet/MINIAODSIM/Pilot_130X_mcRun3_2023_realistic_HI_v14-v2/2830000/3b34a38f-8483-4d64-8139-223e77b1afae.root'
+'/store/user/subehera/MinBias_PbPb_5p36TeV_Hydjet_v1/MinBias_PbPb_5p36TeV_Hydjet_MiniAODSIM/230926_153015/0000/miniaod_1.root',
+'/store/user/subehera/MinBias_PbPb_5p36TeV_Hydjet_v1/MinBias_PbPb_5p36TeV_Hydjet_MiniAODSIM/230926_153015/0000/miniaod_10.root'
 ]
 
 pbpb_data_reco_aod=[
