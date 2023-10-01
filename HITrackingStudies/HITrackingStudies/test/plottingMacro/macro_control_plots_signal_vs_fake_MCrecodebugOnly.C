@@ -4,39 +4,58 @@
 ///Please, change name of input file below variable "fileName"
 
 ///*** Important parameters
-bool selecAlgo = false; //if true will do all plots (except N-1 plots) for a specific iteration, defined in the variable algoToPlot below
+//input file
+auto fileName = "trk_MC_RecoDebug_general_testPR.root";
+//General or pixel tracks
+bool runOnPixelTrks = false; //pixel tracks do not have HP flag set
+//pT cuts
+float pT_min = 0.0;
+float pT_max = 99999.9;
+//Tracking iteration
+bool selecAlgo = false; //if true will do all plots for a specific iteration (except N-1 plots), defined in the variable algoToPlot below. IMPORTANT: Please, use false for pixel tracks
 int algoToPlot = 4;
 //select centrality range (in 0 - 100% range) that want to see the control plots
 int cent_min = 0;
 int cent_max = 100;
-//input file
-auto fileName = "trk_MC_RecoDebug.root";
 
 ///Auxiliar functions
 
 //Function to select high-purity matched, unmatched and all tracks & saving standard variables
-std::vector<float> func_select_trks( ROOT::VecOps::RVec<Float_t> vec_ori, ROOT::VecOps::RVec<Bool_t> vec_trk_fake, ROOT::VecOps::RVec<Bool_t> vec_trk_hp, ROOT::VecOps::RVec<Int_t> vec_trk_algo, Int_t option ){
+std::vector<float> func_select_trks( ROOT::VecOps::RVec<Float_t> vec_ori, ROOT::VecOps::RVec<Bool_t> vec_trk_fake, ROOT::VecOps::RVec<Bool_t> vec_trk_hp, ROOT::VecOps::RVec<Int_t> vec_trk_algo, ROOT::VecOps::RVec<Float_t> vec_trk_pt, Int_t option ){
    std::vector<float> v;
    for (int i = 0; i < vec_ori.size(); i++){
+      if(vec_trk_pt[i]<pT_min || vec_trk_pt[i]>pT_max) continue;	   
       if (option == 1){	   
 	 if(selecAlgo){     
             if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]);
 	 }else{
-            if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+	    if(runOnPixelTrks){
+	       if ( !vec_trk_fake[i] ) v.push_back(vec_ori[i]);	    
+	    }else{  	    
+               if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+	    }
          }
       }
       else if (option == 2){
 	 if(selecAlgo){     
             if ( vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]); 
 	 }else{
-            if ( vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+            if(runOnPixelTrks){
+	       if ( vec_trk_fake[i] ) v.push_back(vec_ori[i]);	    
+            }else{ 		    
+               if ( vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+	    }
          }
       }
       else{
 	 if(selecAlgo){     
            if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]); 
 	 }else{
-           if ( vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+	   if(runOnPixelTrks){
+	      v.push_back(vec_ori[i]); 	   
+	   }else{ 	   
+              if ( vec_trk_hp[i] ) v.push_back(vec_ori[i]);		 
+	   }
          }		 
       } 
    }
@@ -44,28 +63,41 @@ std::vector<float> func_select_trks( ROOT::VecOps::RVec<Float_t> vec_ori, ROOT::
 }
 
 //Function to select high-purity matched, unmatched and all tracks & saving DCA significance or pT resolution
-std::vector<float> func_ratio_select_trks( ROOT::VecOps::RVec<Float_t> vec_num, ROOT::VecOps::RVec<Float_t> vec_den, ROOT::VecOps::RVec<Bool_t> vec_trk_fake, ROOT::VecOps::RVec<Bool_t> vec_trk_hp, ROOT::VecOps::RVec<Int_t> vec_trk_algo, Int_t option ){
+std::vector<float> func_ratio_select_trks( ROOT::VecOps::RVec<Float_t> vec_num, ROOT::VecOps::RVec<Float_t> vec_den, ROOT::VecOps::RVec<Bool_t> vec_trk_fake, ROOT::VecOps::RVec<Bool_t> vec_trk_hp, ROOT::VecOps::RVec<Int_t> vec_trk_algo, ROOT::VecOps::RVec<Float_t> vec_trk_pt, Int_t option ){
    std::vector<float> v;
    for (int i = 0; i < vec_num.size(); i++){
+      if(vec_trk_pt[i]<pT_min || vec_trk_pt[i]>pT_max) continue;	   
       if (option == 1){
 	 if(selecAlgo){     
             if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_num[i]/vec_den[i]);
 	 }else{
-            if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]);		 
+	    if(runOnPixelTrks){
+               if ( !vec_trk_fake[i] ) v.push_back(vec_num[i]/vec_den[i]);
+            }else{
+               if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]);
+            }
          }
       }
       else if (option == 2){
 	 if(selecAlgo){     
             if ( vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_num[i]/vec_den[i]);
 	 }else{
-            if ( vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]); 		 
+	    if(runOnPixelTrks){
+               if ( vec_trk_fake[i] ) v.push_back(vec_num[i]/vec_den[i]);
+            }else{
+               if ( vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]);
+            }
          }
       }
       else{
 	 if(selecAlgo){     
             if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_num[i]/vec_den[i]);
 	 }else{
-	    if ( vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]); 
+	    if(runOnPixelTrks){
+               v.push_back(vec_num[i]/vec_den[i]);
+            }else{
+               if ( vec_trk_hp[i] ) v.push_back(vec_num[i]/vec_den[i]);
+            }
          }
       }
    }
@@ -73,28 +105,41 @@ std::vector<float> func_ratio_select_trks( ROOT::VecOps::RVec<Float_t> vec_num, 
 }
 
 //Function to select high-purity matched, unmatched and all tracks & saving chi2/ndf/nlayers
-std::vector<float> func_chi2_select_trks( ROOT::VecOps::RVec<Float_t> vec_chi2, ROOT::VecOps::RVec<Float_t> vec_ndf,ROOT::VecOps::RVec<Float_t> vec_nlayers, ROOT::VecOps::RVec<Bool_t> vec_trk_fake, ROOT::VecOps::RVec<Bool_t> vec_trk_hp, ROOT::VecOps::RVec<Int_t> vec_trk_algo, Int_t option ){
+std::vector<float> func_chi2_select_trks( ROOT::VecOps::RVec<Float_t> vec_chi2, ROOT::VecOps::RVec<Float_t> vec_ndf,ROOT::VecOps::RVec<Float_t> vec_nlayers, ROOT::VecOps::RVec<Bool_t> vec_trk_fake, ROOT::VecOps::RVec<Bool_t> vec_trk_hp, ROOT::VecOps::RVec<Int_t> vec_trk_algo, ROOT::VecOps::RVec<Float_t> vec_trk_pt, Int_t option ){
    std::vector<float> v;
    for (int i = 0; i < vec_chi2.size(); i++){
+      if(vec_trk_pt[i]<pT_min || vec_trk_pt[i]>pT_max) continue;	   
       if (option == 1){
 	 if(selecAlgo){     
             if ( !vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
 	 }else{
-            if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);		 
+	    if(runOnPixelTrks){
+               if ( !vec_trk_fake[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+            }else{
+               if ( !vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+            }
 	 }
       }
       else if (option == 2){
 	 if(selecAlgo){     
             if ( vec_trk_fake[i] && vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
 	 }else{
-	    if ( vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]); 
+	    if(runOnPixelTrks){
+               if ( vec_trk_fake[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+            }else{
+               if ( vec_trk_fake[i] && vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+            }
          }
       }
       else{
 	 if(selecAlgo){     
             if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
 	 }else{
-	    if ( vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]); 	 
+	    if(runOnPixelTrks){
+               v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+            }else{
+               if ( vec_trk_hp[i] ) v.push_back(vec_chi2[i]/vec_ndf[i]/vec_nlayers[i]);
+            }
 	 }
       }
    }
@@ -166,33 +211,33 @@ auto treeName = "anaTrack/trackTree"; //tree name
 ROOT::RDataFrame d(treeName, fileName);
 
 auto d_select = d.Filter(cent_cut,"Centrality cut") //filter events only in this centrality range --- see definition above
-	         .Define("trkPt_sig","func_select_trks(trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //pt
-	         .Define("trkPt_fak","func_select_trks(trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //pt
-		 .Define("trkPt_all","func_select_trks(trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)") //pt 
-                 .Define("trkEta_sig","func_select_trks(trkEta.trkEta,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //eta
-                 .Define("trkEta_fak","func_select_trks(trkEta.trkEta,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //eta
-                 .Define("trkEta_all","func_select_trks(trkEta.trkEta,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)") //eta 
-                 .Define("trkPhi_sig","func_select_trks(trkPhi.trkPhi,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //phi
-                 .Define("trkPhi_fak","func_select_trks(trkPhi.trkPhi,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //phi
-                 .Define("trkPhi_all","func_select_trks(trkPhi.trkPhi,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)") //phi 
-		 .Define("trkNHit_sig","func_select_trks(trkNHit.trkNHit,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //nhits
-                 .Define("trkNHit_fak","func_select_trks(trkNHit.trkNHit,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //nhits
-                 .Define("trkNHit_all","func_select_trks(trkNHit.trkNHit,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)") //nhits
-		 .Define("trkDzSig_sig","func_ratio_select_trks(trkDz1.trkDz1,trkDzError1.trkDzError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //dzSig
-                 .Define("trkDzSig_fak","func_ratio_select_trks(trkDz1.trkDz1,trkDzError1.trkDzError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //dzSig
-                 .Define("trkDzSig_all","func_ratio_select_trks(trkDz1.trkDz1,trkDzError1.trkDzError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)") //dzSig
-	         .Define("trkDxySig_sig","func_ratio_select_trks(trkDxy1.trkDxy1,trkDxyError1.trkDxyError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //dxySig
-                 .Define("trkDxySig_fak","func_ratio_select_trks(trkDxy1.trkDxy1,trkDxyError1.trkDxyError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //dxySig
-                 .Define("trkDxySig_all","func_ratio_select_trks(trkDxy1.trkDxy1,trkDxyError1.trkDxyError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)") //dxySig
-		 .Define("trkPtRes_sig","func_ratio_select_trks(trkPtError.trkPtError,trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //ptRes
-                 .Define("trkPtRes_fak","func_ratio_select_trks(trkPtError.trkPtError,trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //ptRes
-                 .Define("trkPtRes_all","func_ratio_select_trks(trkPtError.trkPtError,trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)") //ptRes
-		 .Define("trkChi2_sig","func_chi2_select_trks(trkChi2.trkChi2,trkNdof.trkNdof,trkNlayer.trkNlayer,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //ptRes
-                 .Define("trkChi2_fak","func_chi2_select_trks(trkChi2.trkChi2,trkNdof.trkNdof,trkNlayer.trkNlayer,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //ptRes
-                 .Define("trkChi2_all","func_chi2_select_trks(trkChi2.trkChi2,trkNdof.trkNdof,trkNlayer.trkNlayer,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)")//ptRes
-		 .Define("trkAlgo_sig","func_select_trks(trkAlgo.trkAlgo,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,1)") //algo
-                 .Define("trkAlgo_fak","func_select_trks(trkAlgo.trkAlgo,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,2)") //algo
-                 .Define("trkAlgo_all","func_select_trks(trkAlgo.trkAlgo,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,3)")//algo
+	         .Define("trkPt_sig","func_select_trks(trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //pt
+	         .Define("trkPt_fak","func_select_trks(trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //pt
+		 .Define("trkPt_all","func_select_trks(trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)") //pt 
+                 .Define("trkEta_sig","func_select_trks(trkEta.trkEta,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //eta
+                 .Define("trkEta_fak","func_select_trks(trkEta.trkEta,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //eta
+                 .Define("trkEta_all","func_select_trks(trkEta.trkEta,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)") //eta 
+                 .Define("trkPhi_sig","func_select_trks(trkPhi.trkPhi,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //phi
+                 .Define("trkPhi_fak","func_select_trks(trkPhi.trkPhi,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //phi
+                 .Define("trkPhi_all","func_select_trks(trkPhi.trkPhi,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)") //phi 
+		 .Define("trkNHit_sig","func_select_trks(trkNHit.trkNHit,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //nhits
+                 .Define("trkNHit_fak","func_select_trks(trkNHit.trkNHit,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //nhits
+                 .Define("trkNHit_all","func_select_trks(trkNHit.trkNHit,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)") //nhits
+		 .Define("trkDzSig_sig","func_ratio_select_trks(trkDz1.trkDz1,trkDzError1.trkDzError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //dzSig
+                 .Define("trkDzSig_fak","func_ratio_select_trks(trkDz1.trkDz1,trkDzError1.trkDzError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //dzSig
+                 .Define("trkDzSig_all","func_ratio_select_trks(trkDz1.trkDz1,trkDzError1.trkDzError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)") //dzSig
+	         .Define("trkDxySig_sig","func_ratio_select_trks(trkDxy1.trkDxy1,trkDxyError1.trkDxyError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //dxySig
+                 .Define("trkDxySig_fak","func_ratio_select_trks(trkDxy1.trkDxy1,trkDxyError1.trkDxyError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //dxySig
+                 .Define("trkDxySig_all","func_ratio_select_trks(trkDxy1.trkDxy1,trkDxyError1.trkDxyError1,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)") //dxySig
+		 .Define("trkPtRes_sig","func_ratio_select_trks(trkPtError.trkPtError,trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //ptRes
+                 .Define("trkPtRes_fak","func_ratio_select_trks(trkPtError.trkPtError,trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //ptRes
+                 .Define("trkPtRes_all","func_ratio_select_trks(trkPtError.trkPtError,trkPt.trkPt,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)") //ptRes
+		 .Define("trkChi2_sig","func_chi2_select_trks(trkChi2.trkChi2,trkNdof.trkNdof,trkNlayer.trkNlayer,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //ptRes
+                 .Define("trkChi2_fak","func_chi2_select_trks(trkChi2.trkChi2,trkNdof.trkNdof,trkNlayer.trkNlayer,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //ptRes
+                 .Define("trkChi2_all","func_chi2_select_trks(trkChi2.trkChi2,trkNdof.trkNdof,trkNlayer.trkNlayer,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)")//ptRes
+		 .Define("trkAlgo_sig","func_select_trks(trkAlgo.trkAlgo,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,1)") //algo
+                 .Define("trkAlgo_fak","func_select_trks(trkAlgo.trkAlgo,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,2)") //algo
+                 .Define("trkAlgo_all","func_select_trks(trkAlgo.trkAlgo,trkFake.trkFake,highPurity.highPurity,trkAlgo.trkAlgo,trkPt.trkPt,3)")//algo
 		 .Define("trkNHit_NminusOne_sig","func_NminusOneVar_select_trks(trkNHit_sig,trkChi2_sig,trkDzSig_sig,trkDxySig_sig,trkPtRes_sig,true,false,false,false,false)") //nhits -- NminusOne
                  .Define("trkNHit_NminusOne_fak","func_NminusOneVar_select_trks(trkNHit_fak,trkChi2_fak,trkDzSig_fak,trkDxySig_fak,trkPtRes_fak,true,false,false,false,false)") //nhits
                  .Define("trkNHit_NminusOne_all","func_NminusOneVar_select_trks(trkNHit_all,trkChi2_all,trkDzSig_all,trkDxySig_all,trkPtRes_all,true,false,false,false,false)") //nhits

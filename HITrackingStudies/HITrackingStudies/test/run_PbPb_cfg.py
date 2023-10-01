@@ -2,7 +2,8 @@
 '''
 sample="MC_RecoDebug","MC_Reco_AOD","MC_MiniAOD","Data_Reco_AOD","Data_MiniAOD"
 n=integer number of events
-runOverStreams=False or False
+runOverStreams=False or True
+usePixelTrks=False or True
 
 To run it, please, do e.g.:
     cmsRun run_PbPb_cfg.py sample="Data_Reco_AOD" n=100 usePixelTrks=False  runOverStreams=False >& OutPut.txt &

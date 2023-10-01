@@ -1,6 +1,6 @@
 pbpb_mc_recodebug=[
-'/store/user/subehera/MinBias_PbPb_5p36TeV_Hydjet/MinBias_PbPb_5p36TeV_Hydjet_Reco/230609_203308/0000/reco_1.root',
-'/store/user/subehera/MinBias_PbPb_5p36TeV_Hydjet/MinBias_PbPb_5p36TeV_Hydjet_Reco/230609_203308/0000/reco_10.root'
+'/store/user/subehera/MinBias_PbPb_5p36TeV_Hydjet_v1/MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v1/230921_112329/0000/recostep_1.root',
+'/store/user/subehera/MinBias_PbPb_5p36TeV_Hydjet_v1/MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v1/230921_112329/0000/recostep_10.root'
 ]
 
 pbpb_mc_reco_aod=[
