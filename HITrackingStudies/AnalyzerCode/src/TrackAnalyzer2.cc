@@ -649,15 +649,33 @@ TrackAnalyzer2::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 
       reco::Track const& t = c.pseudoTrack();
 
-      pev_.trkEta[pev_.nTrk]=t.eta();
-      pev_.trkPhi[pev_.nTrk]=t.phi();
-      pev_.trkPt[pev_.nTrk]=t.pt();
-      pev_.trkPtError[pev_.nTrk]=t.ptError();
+      for(unsigned int iq = 0; iq < qualityStrings_.size(); ++iq){
+        pev_.trkQual[iq][pev_.nTrk]=0;
+        if(t.quality(reco::TrackBase::qualityByName(qualityStrings_[iq].data()))) pev_.trkQual[iq][pev_.nTrk]=1;
+      }
+
+      pev_.trkEta[pev_.nTrk]=rndDP2(t.eta(),3);
+      pev_.trkPhi[pev_.nTrk]=rndDP2(t.phi(),3);
+      pev_.trkPt[pev_.nTrk]=rndSF2(t.pt(),4);
+      pev_.trkPtError[pev_.nTrk]=rndSF2(t.ptError(),4);
       pev_.trkCharge[pev_.nTrk]=t.charge();
       pev_.trkNHit[pev_.nTrk]=t.numberOfValidHits();
-      pev_.trkChi2[pev_.nTrk]=(*chi2Map)[cands->ptrAt(it)];  
+      pev_.trkChi2[pev_.nTrk]=rndSF2((*chi2Map)[cands->ptrAt(it)] * t.ndof(),4);
+      pev_.trkNdof[pev_.nTrk]=t.ndof();
       pev_.trkNlayer[pev_.nTrk] = t.hitPattern().trackerLayersWithMeasurement();
+      pev_.trkNlayer3D[pev_.nTrk] = t.hitPattern().pixelLayersWithMeasurement() + t.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
       pev_.trkNpixellayer[pev_.nTrk] = t.hitPattern().pixelLayersWithMeasurement();
+
+      pev_.trkAlgo[pev_.nTrk] = c.trkAlgo();
+      pev_.trkOriginalAlgo[pev_.nTrk] = c.trkOriginalAlgo();
+
+      pev_.trkDxy[pev_.nTrk]=t.dxy();
+      pev_.trkDxyError[pev_.nTrk]=t.dxyError();
+      pev_.trkDz[pev_.nTrk]=t.dz();
+      pev_.trkDzError[pev_.nTrk]=t.dzError();
+      pev_.trkVx[pev_.nTrk]=t.vx();
+      pev_.trkVy[pev_.nTrk]=t.vy();
+      pev_.trkVz[pev_.nTrk]=t.vz();
 
       math::XYZPoint v1(pev_.xVtx[pev_.maxPtVtx],pev_.yVtx[pev_.maxPtVtx], pev_.zVtx[pev_.maxPtVtx]);
       pev_.trkDz1[pev_.nTrk]=t.dz(v1);
