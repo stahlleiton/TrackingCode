@@ -22,6 +22,7 @@ namespace pat {
       produces<reco::VertexCollection>();
       produces<reco::VertexCollection>("secondary");
       produces<edm::Association<reco::TrackCollection> >();
+      produces<std::vector<edm::Ptr<pat::PackedCandidate> > >();
     };
     ~TrackAndVertexUnpacker() override{};
 
@@ -57,6 +58,7 @@ void pat::TrackAndVertexUnpacker::produce(edm::StreamID, edm::Event& iEvent, con
 
   // create output track collection
   auto outTracks = std::make_unique<reco::TrackCollection>();
+  auto outPCands = std::make_unique<std::vector<edm::Ptr<pat::PackedCandidate> > >();
   std::map<size_t, std::vector<int> > pcAssoc;
   std::map<size_t, std::vector<size_t> > pvAssoc;
   std::map<reco::CandidatePtr, size_t> trackKeys;
@@ -66,8 +68,6 @@ void pat::TrackAndVertexUnpacker::produce(edm::StreamID, edm::Event& iEvent, con
     pcAssoc[i] = std::vector<int>(cands->size(), -1);
     for (size_t iC = 0; iC < cands->size(); iC++) {
       const auto& cand = (*cands)[iC];
-      if (cand.charge() == 0)
-        continue;
       const auto& normChi2 = normChi2Map.isValid() ? normChi2Map->get(cands.id(), iC) : -1;
       const auto& trkAlgo = static_cast<reco::TrackBase::TrackAlgorithm>(cand.trkAlgo());
       const auto& trkOrigAlgo = static_cast<reco::TrackBase::TrackAlgorithm>(cand.trkOriginalAlgo());
@@ -136,6 +136,7 @@ void pat::TrackAndVertexUnpacker::produce(edm::StreamID, edm::Event& iEvent, con
       reco::CandidatePtr candRef(cands.id(), &cand, iC);
       trackKeys[candRef] = iT;
       pcAssoc[i][iC] = iT;
+      outPCands->emplace_back(cands.id(), &cand, iC);
     }
   }
   const auto& outTracksHandle = iEvent.put(std::move(outTracks));
@@ -177,16 +178,21 @@ void pat::TrackAndVertexUnpacker::produce(edm::StreamID, edm::Event& iEvent, con
     pc2track_filler.insert(packedCandidates[i], pcAssoc[i].begin(), pcAssoc[i].end());
   pc2track_filler.fill();
   iEvent.put(std::move(assoc_pc2track));
+
+  // create output association track -> packed candidate
+  const auto& outPCandsHandle = iEvent.put(std::move(outPCands));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void pat::TrackAndVertexUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::vector<edm::InputTag> >("packedCandidates",
-                                        {edm::InputTag("packedPFCandidates"), edm::InputTag("lostTracks")})
+  desc.add<std::vector<edm::InputTag> >(
+          "packedCandidates",
+          {edm::InputTag("packedPFCandidates"), edm::InputTag("lostTracks"), edm::InputTag("lostTracks", "eleTracks")})
       ->setComment("packed candidates collection");
-  desc.add<std::vector<edm::InputTag> >("packedCandidateNormChi2Map",
-                                        {edm::InputTag("packedPFCandidateTrackChi2"), edm::InputTag("lostTrackChi2")})
+  desc.add<std::vector<edm::InputTag> >(
+          "packedCandidateNormChi2Map",
+          {edm::InputTag("packedPFCandidateTrackChi2"), edm::InputTag("lostTrackChi2"), edm::InputTag("")})
       ->setComment("packed candidates normChi2 map");
   desc.add<edm::InputTag>("primaryVertices", edm::InputTag("offlineSlimmedPrimaryVertices"))
       ->setComment("primary vertex collection");
