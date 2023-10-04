@@ -30,12 +30,12 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
 
 options.register ('sample',
-                  "MC_MiniAOD", # default value
+                  "Data_MiniAOD", # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, bool or float
                   "sample")
 options.register ('n',
-                  10, # default value
+                  -1, # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.int,          # string, int, bool or float
                   "n")
@@ -92,7 +92,7 @@ process.tpClusterProducer  = process.tpClusterProducerDefault.clone()
 # Input source
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-    fileNames =  cms.untracked.vstring(pbpb),
+    fileNames =  cms.untracked.vstring('file:/eos/cms/store/group/phys_heavyions_ops/abaty/RAWPrimeChecks2023/RAWPrime/RAWPrime_Streamer_2.root'),
     skipEvents = cms.untracked.uint32(0),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -146,6 +146,45 @@ if (options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
     process.GlobalTag = GlobalTag(process.GlobalTag, '132X_dataRun3_Express_v4', '')
 ###
 
+#old track ntuple
+process.anaTrackOLD = cms.EDAnalyzer('TrackAnalyzer2',
+    doTrack = cms.bool(True),
+    doTrackExtra = cms.bool(False),
+    trackPtMin = cms.double(0.0),
+    simTrackPtMin = cms.double(0.0),
+    vertexSrc = cms.vstring(['offlineSlimmedPrimaryVertices']),
+    trackSrc = cms.InputTag('generalTracks'),
+    mvaSrc = cms.InputTag("generalTracks","MVAValues"),
+    particleSrc = cms.InputTag('genParticles'),
+    pfCandSrc = cms.InputTag('particleFlow'),
+    beamSpotSrc = cms.InputTag('offlineBeamSpot'),
+    doPFMatching = cms.bool(False),
+    doSimTrack = cms.bool(False),
+    doSimVertex = cms.bool(False),
+    doHighestPtVertex = cms.bool(False),
+    fillSimTrack = cms.bool(False),
+    doDeDx = cms.bool(False),
+    doDebug = cms.bool(False),
+    useQuality = cms.bool(False),
+    qualityStrings = cms.vstring(['highPurity','tight','loose']),
+    tpFakeSrc = cms.InputTag('mix','MergedTrackTruth'),
+    tpEffSrc = cms.InputTag('mix','MergedTrackTruth'),
+    associatorMap = cms.InputTag('tpRecoAssocGeneralTracks'),
+    doMVA = cms.bool(True),
+    doTrackVtxWImpPar = cms.bool(False),
+    trackVtxMaxDistance = cms.double(3.0),
+    qualityString = cms.string("highPurity"),
+    fiducialCut = cms.bool(False),
+    tpVtxSrc = cms.InputTag("mix","MergedTrackTruth"),
+    useCentrality = cms.bool(True),
+    centralitySrc = cms.InputTag("centralityBin","HFtowers"),
+    runMiniAOD = cms.bool(True),
+    chi2Map = cms.InputTag('packedPFCandidateTrackChi2'),
+    packedCandSrc = cms.InputTag('packedPFCandidates'),
+    lostTracksSrc = cms.InputTag('lostTracks'),
+    chi2MapLost = cms.InputTag('lostTrackChi2')
+)
+
 #forest style analyzers (anaTrack module) (not affected by HITrackCorrections code)
 process.load('HITrackingStudies.AnalyzerCode.trackAnalyzer_cff')
 process.anaTrack.useCentrality = True
@@ -177,7 +216,7 @@ if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options
         if options.usePixelTrks == True:
            process.anaTrack.trackSrc = 'hiPixelTracks'
            process.anaTrack.vertexSrc = cms.vstring(['hiPixelTracks'])
-        process.anaSeq = cms.Sequence(process.unpackedTracksAndVertices * process.hiPixelTracks * process.anaTrack)
+        process.anaSeq = cms.Sequence(process.unpackedTracksAndVertices * process.hiPixelTracks * process.anaTrack * process.anaTrackOLD)
 
 ###trigger selection for data
 import HLTrigger.HLTfilters.hltHighLevel_cfi
