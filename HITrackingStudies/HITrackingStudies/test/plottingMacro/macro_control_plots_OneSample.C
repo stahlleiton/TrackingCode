@@ -5,7 +5,7 @@
 
 ///*** Important parameters
 //input file
-auto fileName = "trk.root";
+auto fileName = "/eos/cms/store/group/phys_heavyions/rpradhan/TrackingEffTables2022PbPbRun/HIPhysicsRawPrime0/GeneralTracks_DataMAOD_v1/231113_010935/0000/2023PbPb_DataMAOD_GeneralTracks_41.root";
 //General or pixel tracks
 bool runOnPixelTrks = false; //pixel tracks do not have HP flag set
 //pT cuts
@@ -16,7 +16,7 @@ bool selecAlgo = false; //if true will do all plots for a specific iteration (ex
 int algoToPlot = 22;
 //select centrality range (in 0 - 100% range) that want to see the control plots 
 int cent_min = 0;
-int cent_max = 100;
+int cent_max = 10;
 
 
 ///Auxiliar functions
@@ -148,15 +148,15 @@ const unsigned int N_variables = 14; //Sequence: pt, eta, phi, nhits, dzSig, dxy
 std::string variable_name_all[N_variables]={"trkPt_all","trkEta_all","trkPhi_all","trkNHit_all","trkDzSig_all","trkDxySig_all","trkPtRes_all","trkChi2_all","trkAlgo_all","trkNHit_NminusOne_all","trkDzSig_NminusOne_all","trkDxySig_NminusOne_all","trkPtRes_NminusOne_all","trkChi2_NminusOne_all"}; //variables' name
 TString hist_name_all[N_variables]={"trkPt","trkEta","trkPhi","trkNHit","trkDzSig","trkDxySig","trkPtRes","trkChi2","trkAlgo","trkNHit_NminusOne","trkDzSig_NminusOne","trkDxySig_NminusOne","trkPtRes_NminusOne","trkChi2_NminusOne"}; //histograms' name
 TString hist_title_all[N_variables]={"p_{T} of HP tracks","#eta of HP tracks","#phi of HP tracks", "NHits of HP tracks", "DzSig of HP tracks", "DxySig of HP tracks", "Pt Resolution of HP tracks","#chi^{2}/ndf/nlayers of HP tracks","Algo of HP tracks","NHits with All Other Cuts","DzSig with All Other Cuts", "DxySig with All Other Cuts","Pt Resolution with All Other Cuts","#chi^{2}/ndf/nlayers with All Other Cuts"}; //histograms' title
-const float hist_Nbins[N_variables]= {100,100,100,50,100,100,100,100,30,50,100,100,100,100}; //Number of bins 
+const float hist_Nbins[N_variables]= {300,100,100,50,100,100,100,100,30,50,100,100,100,100}; //Number of bins 
 const float hist_Xrange_min[N_variables]= {0,-3.5,-4.5,0,-30,-30,0,0,0,0,-30,-30,0,0}; //Minimum value of the x-axis range
-const float hist_Xrange_max[N_variables]= {10,3.5,4.5,50,30,30,0.3,1,30,50,30,30,0.3,1}; //Maximum value of the x-axis range
+const float hist_Xrange_max[N_variables]= {30,3.5,4.5,50,30,30,0.3,1,30,50,30,30,0.3,1}; //Maximum value of the x-axis range
 TString hist_XaxisTitle[N_variables]={"p_{T} (GeV/c)","#eta","#phi","Number of Hits", "dZ/#sigma_{dZ}", "dXY/#sigma_{dXY}","p_{T}Err/p_{T}","#chi^{2}/ndf/nlayers","Algo","Number of Hits","dZ/#sigma_{dZ}", "dXY/#sigma_{dXY}","p_{T}Err/p_{T}","#chi^{2}/ndf/nlayers"}; //Title of x-axis
 const float hist_Yrange_min[N_variables]={0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9}; //Minimum of the y-axis range
 const float hist_Yrange_max[N_variables]={10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000}; //Maximum of the y-axis
 const float histNorm_Yrange_min[N_variables]={0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001}; //Minimum of the y-axis range
 const float histNorm_Yrange_max[N_variables]={0.15,0.03,0.03,0.30,0.30,0.30,0.30,0.12,0.30,0.30,0.30,0.30,0.30,0.15}; //Maximum of the y-axis range 
-TString fig_name[N_variables]={"hist_pt_allTrks_NoSel.pdf","hist_eta_allTrks_NoSel.pdf","hist_phi_allTrks_NoSel.pdf","hist_nhits_allTrks_NoSel.pdf","hist_dZsig_allTrks_NoSel.pdf","hist_dXYsig_allTrks_NoSel.pdf","hist_pTres_allTrks_NoSel.pdf","hist_chi2_allTrks_NoSel.pdf","hist_algo_allTrks_NoSel.pdf","hist_nhits_allTrks_NimusOneCuts.pdf","hist_dZsig_allTrks_NimusOneCuts.pdf","hist_dXYsig_allTrks_NimusOneCuts.pdf","hist_pTres_allTrks_NimusOneCuts.pdf","hist_chi2_allTrks_NimusOneCuts.pdf"}; //Name of the figure file with the histograms saved
+TString fig_name[N_variables]={"hist_pt_allTrks_NoSel_Cent010.pdf","hist_eta_allTrks_NoSel_Cent010.pdf","hist_phi_allTrks_NoSel_Cent010.pdf","hist_nhits_allTrks_NoSel_Cent010.pdf","hist_dZsig_allTrks_NoSel_Cent010.pdf","hist_dXYsig_allTrks_NoSel_Cent010.pdf","hist_pTres_allTrks_NoSel_Cent010.pdf","hist_chi2_allTrks_NoSel_Cent010.pdf","hist_algo_allTrks_NoSel_Cent010.pdf","hist_nhits_allTrks_NimusOneCuts_Cent010.pdf","hist_dZsig_allTrks_NimusOneCuts_Cent010.pdf","hist_dXYsig_allTrks_NimusOneCuts_Cent010.pdf","hist_pTres_allTrks_NimusOneCuts_Cent010.pdf","hist_chi2_allTrks_NimusOneCuts_Cent010.pdf"}; //Name of the figure file with the histograms saved
 auto yaxis_label1 = "Number of Tracks / Bin"; //y-axis label integral histos
 auto yaxis_label2 = "Normalized Distributions"; //y-axis label normalized histos
 

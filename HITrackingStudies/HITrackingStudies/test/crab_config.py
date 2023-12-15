@@ -29,7 +29,7 @@ config.JobType.psetName       = 'run_PbPb_cfg.py'
 #config.JobType.maxMemoryMB    = 2500
 
 #config.JobType.inputFiles     = ['']##put new selections here
-
+config.JobType.inputFiles = ['../cfg/CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v1302x04_offline_374289.db']
 ################################
 
 config.section_('Data')###add a new section of type "Data"

@@ -107,7 +107,7 @@ void saveCanvas(TCanvas* c, TString dir, TString filename)
    //c->Print(Form("../%s/%s_%d.gif",dir.Data(),filename.Data(),date->GetDate()));
   // c->Print(Form("../%s/%s_%d.pdf",dir.Data(),filename.Data(),date->GetDate()));
    //c->Print(Form("../%s/%s_%d.C",dir.Data(),filename.Data(),date->GetDate()));
-   c->Print(Form("%s/%s_%d.png",dir.Data(),filename.Data(),date->GetDate()));
+   c->Print(Form("%s/%s_%d.pdf",dir.Data(),filename.Data(),date->GetDate()));
 }
 /*
 void initSubPad(TPad* pad, int i)

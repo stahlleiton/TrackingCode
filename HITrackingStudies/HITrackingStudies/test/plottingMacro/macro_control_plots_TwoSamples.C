@@ -5,8 +5,9 @@
 
 ///*** Important parameters
 //input files
-auto fileName1 = "trk.root"; //ratio plots are fileName1/fileName2
-auto fileName2 = "trk.root";
+auto fileName1 = "/eos/cms/store/group/phys_heavyions/rpradhan/TrackingStudies/2023PbPb_MAODData_GeneralTracks_NewCode_Run374810.root"; //ratio plots are fileName1/fileName2
+//auto fileName2 = "/eos/cms/store/group/phys_heavyions/rpradhan/TrackingStudies/2023PbPb_MAODData_GeneralTracks_NewCode_Run374354.root";
+auto fileName2 = "/eos/cms/store/group/phys_heavyions/rpradhan/TrackingStudies/2023PbPb_MAODMC_GeneralTracks_NewCode.root";
 //General or pixel tracks
 bool runOnPixelTrks = false; //pixel tracks do not have HP flag set
 //pT cuts
@@ -24,18 +25,25 @@ int cent_max = 100;
 //Function to select high-purity tracks & saving standard variables
 std::vector<float> func_select_trks( ROOT::VecOps::RVec<Float_t> vec_ori, ROOT::VecOps::RVec<Bool_t> vec_trk_fake, ROOT::VecOps::RVec<Bool_t> vec_trk_hp, ROOT::VecOps::RVec<Int_t> vec_trk_algo, ROOT::VecOps::RVec<Float_t> vec_trk_pt){
    std::vector<float> v;
-   for (int i = 0; i < vec_ori.size(); i++){
-      if(vec_trk_pt[i]<pT_min || vec_trk_pt[i]>pT_max) continue;	   
-      if(selecAlgo){     
-         if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]);
-      }else{
-	 if(runOnPixelTrks){     
-            v.push_back(vec_ori[i]);		 
-	 }else{
-            if ( vec_trk_hp[i] ) v.push_back(vec_ori[i]); 		 
+   for (int i = 0; i < vec_ori.size(); i++)
+     {
+       if(vec_trk_pt[i]<pT_min || vec_trk_pt[i]>pT_max) continue;	   
+       if(selecAlgo)
+	 {     
+	   if ( vec_trk_hp[i] && vec_trk_algo[i]==algoToPlot ) v.push_back(vec_ori[i]);
 	 }
-      }
-   }
+       else
+	 {
+	   if(runOnPixelTrks)
+	     {     
+	       v.push_back(vec_ori[i]);		 
+	     }
+	   else
+	     {
+	       if ( vec_trk_hp[i] ) v.push_back(vec_ori[i]); 		 
+	     }
+	 }
+     }
    return v;
 }
 
@@ -120,8 +128,8 @@ std::vector<float> func_NminusOneVar_select_trks( std::vector<float> vec_nHits, 
 
 //Function to customize Legend of the histograms
 void legendStyle(TLegend* tl, TH1D* h_all1, TH1D* h_all2){
-   tl->AddEntry(h_all1,"Sample1","l");
-   tl->AddEntry(h_all2,"Sample2","l");
+   tl->AddEntry(h_all1,"Run: 374810","l");
+   tl->AddEntry(h_all2,"New MC","l");
    tl->SetFillStyle(0);
    tl->SetBorderSize(0);
    tl->SetTextSize(0.045);
@@ -237,7 +245,7 @@ for (unsigned int i=0; i<N_variables; i++){
    h_ratio->GetYaxis()->SetTitle("Ratio (Sample1/Sample2)");
    h_ratio->GetYaxis()->SetTitleOffset(1.4);
    h_ratio->GetXaxis()->SetTitle(hist_XaxisTitle[i]);
-   h_ratio->GetYaxis()->SetRangeUser(.0,10.);
+   h_ratio->GetYaxis()->SetRangeUser(0.,2.);
    gPad->Update();
 
    tc.Print("ControlPlotsTwoSamples/"+fig_name[i]); //save Canvas in a PDF file...we can change format if needed PNG, JPG, ..etc...

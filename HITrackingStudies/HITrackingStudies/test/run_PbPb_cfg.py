@@ -73,7 +73,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('trk.root')
+    fileName = cms.string('2023PbPb_MAODMC_GeneralTracks_NewCode.root')
 )
 
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
@@ -141,11 +141,27 @@ process.HITrackCorrections.algoParameters = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11
 process.HITrackCorrections.vtxWeightParameters = cms.vdouble(0.0306789, 0.427748, 5.16555, 0.0228019, -0.02049, 7.01258 )
 ###
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '132X_mcRun3_2023_realistic_HI_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '132X_mcRun3_2023_realistic_HI_v5', '')
+process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
+process.GlobalTag.toGet.extend([
+    cms.PSet(record = cms.string("HeavyIonRcd"),
+             tag = cms.string("CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v1302x04_offline_374289"),
+             connect = cms.string("sqlite_file:CentralityTable_HFtowers200_HydjetDrum5F_v1302x04_RECODEBUG_MC2023.db"),
+             label = cms.untracked.string("HFtowers")
+         ),
+])
 if (options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
     process.GlobalTag = GlobalTag(process.GlobalTag, '132X_dataRun3_Express_v4', '')
+    process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
+    process.GlobalTag.toGet.extend([
+        cms.PSet(record = cms.string("HeavyIonRcd"),
+                 tag = cms.string("CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v1302x04_offline_374289"),
+                 connect = cms.string("sqlite_file:CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v1302x04_offline_374810.db"),
+                 label = cms.untracked.string("HFtowers")
+             ),
+    ])
 ###
-
+    
 #forest style analyzers (anaTrack module) (not affected by HITrackCorrections code)
 process.load('HITrackingStudies.AnalyzerCode.trackAnalyzer_cff')
 process.anaTrack.useCentrality = True
@@ -182,7 +198,8 @@ if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options
 ###trigger selection for data
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 process.hltMB = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltMB.HLTPaths = ["HLT_HIMinimumBiasHF1AND_v*"]
+#process.hltMB.HLTPaths = ["HLT_HIMinimumBiasHF1AND_v*"]
+process.hltMB.HLTPaths = ["HLT_HIMinimumBiasHF1ANDZDC1nOR_v1"]
 process.hltMB.andOr = cms.bool(True)  # True = OR, False = AND between the HLT paths
 process.hltMB.throw = cms.bool(False) # throw exception on unknown path names
 
@@ -195,7 +212,9 @@ process.p = cms.Path(
                       process.anaSeq
 )
 
-if (options.sample == "MC_Reco_AOD" or options.sample == "MC_MiniAOD" or options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
+if (options.sample == "MC_Reco_AOD" or options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
+    process.p = cms.Path(process.hltMB * process.centralityBin * process.anaSeq)
+if (options.sample == "MC_MiniAOD"):
     process.p = cms.Path(process.centralityBin * process.anaSeq)
-    if (options.sample == "Data_Reco_AOD"):
-        process.p = cms.Path(process.hltMB * process.centralityBin * process.anaSeq)
+if (options.sample == "Data_Reco_AOD"):
+    process.p = cms.Path(process.hltMB * process.centralityBin * process.anaSeq)

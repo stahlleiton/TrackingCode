@@ -1,0 +1,130 @@
+DEBUG 2023-11-13 01:09:11.744 UTC: 	 CRAB Client version: v3.231010
+DEBUG 2023-11-13 01:09:11.744 UTC: 	 Running on: Linux lxplus801.cern.ch 4.18.0-477.27.1.el8_8.x86_64 #1 SMP Thu Aug 31 10:29:22 EDT 2023 x86_64 x86_64 x86_64 GNU/Linux - Red Hat Enterprise Linux 8.8 (Ootpa)
+DEBUG 2023-11-13 01:09:11.744 UTC: 	 Executing command: 'submit'
+DEBUG 2023-11-13 01:09:11.744 UTC: 	 Found CRAB cache file /afs/cern.ch/user/r/rpradhan/.crab3
+INFO 2023-11-13 01:09:11.745 UTC: 	 Will use CRAB configuration file crab_config_DataMAOD.py
+DEBUG 2023-11-13 01:09:11.745 UTC: 	 Loading CRAB configuration file.
+DEBUG 2023-11-13 01:09:11.745 UTC: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+ERROR 2023-11-13 01:09:11.746 UTC: 	 Working area '/afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/TrackingStudies_Run3/crab_GeneralTracks_DataMAOD_v1' already exists 
+Please change the requestName in the config file
+ERROR 2023-11-13 01:09:11.746 UTC: 	 Caught ClientException exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/bin/crab.py", line 159, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/bin/crab.py", line 144, in __call__
+    self.cmd = sub_cmd(self.logger, args[1:])
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/lib/CRABClient/Commands/submit.py", line 36, in __init__
+    SubCommand.__init__(self, logger, cmdargs, disable_interspersed_args=True)
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/lib/CRABClient/Commands/SubCommand.py", line 320, in __init__
+    self.requestarea, self.requestname, self.logfile = createWorkArea(
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/lib/CRABClient/ClientUtilities.py", line 387, in createWorkArea
+    raise ConfigException("Working area '%s' already exists \nPlease change the requestName in the config file" % fullpath)
+CRABClient.ClientExceptions.ConfigException: Working area '/afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/TrackingStudies_Run3/crab_GeneralTracks_DataMAOD_v1' already exists 
+Please change the requestName in the config file
+INFO 2023-11-13 01:09:11.748 UTC: 	 Log file is /afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/crab.log
+DEBUG 2023-11-20 16:45:34.077 UTC: 	 CRAB Client version: v3.231030
+DEBUG 2023-11-20 16:45:34.078 UTC: 	 Running on: Linux lxplus803.cern.ch 4.18.0-477.27.1.el8_8.x86_64 #1 SMP Thu Aug 31 10:29:22 EDT 2023 x86_64 x86_64 x86_64 GNU/Linux - Red Hat Enterprise Linux 8.8 (Ootpa)
+DEBUG 2023-11-20 16:45:34.078 UTC: 	 Executing command: 'setfilestatus'
+DEBUG 2023-11-20 16:45:34.080 UTC: 	 Found CRAB cache file /afs/cern.ch/user/r/rpradhan/.crab3
+DEBUG 2023-11-20 16:45:34.093 UTC: 	 Checking credentials
+DEBUG 2023-11-20 16:45:34.093 UTC: 	 Found proxy file /tmp/x509up_u119946
+DEBUG 2023-11-20 16:45:34.093 UTC: 	 Making sure it has proper VOMS extension
+DEBUG 2023-11-20 16:45:34.093 UTC: 	 Executing command :
+ voms-proxy-info --vo --file /tmp/x509up_u119946
+DEBUG 2023-11-20 16:45:35.001 UTC: 	 output : cms
+
+ error: 
+ retcode : 0
+DEBUG 2023-11-20 16:45:35.001 UTC: 	 Getting proxy life time left
+DEBUG 2023-11-20 16:45:35.001 UTC: 	 Executing command :
+ voms-proxy-info --actimeleft --timeleft --file /tmp/x509up_u119946
+DEBUG 2023-11-20 16:45:35.933 UTC: 	 output : 690926
+690925
+
+ error: 
+ retcode : 0
+DEBUG 2023-11-20 16:45:35.933 UTC: 	 Proxy valid for 191:55:25 hours
+DEBUG 2023-11-20 16:45:35.933 UTC: 	 Command use: setfilestatus
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 Options use: ['--status', 'VALID', '--dataset', '/MinBias_PbPb_5p36TeV_Hydjet_v1/sarteaga-MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v5-0e6c11377ba727d4466887a72ad361ed/USER']
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 Instance is None
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 Server base url is None
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 instance     = prod/phys03
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 dataset      = /MinBias_PbPb_5p36TeV_Hydjet_v1/sarteaga-MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v5-0e6c11377ba727d4466887a72ad361ed/USER
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 files        = None
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 status       = VALID
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 Read Url  = cmsweb.cern.ch:8443/dbs/prod/phys03/DBSReader/
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 Write Url = cmsweb.cern.ch:8443/dbs/prod/phys03/DBSWriter/
+DEBUG 2023-11-20 16:45:35.934 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v5-0e6c11377ba727d4466887a72ad361ed%2FUSER&validFileOnly=1
+DEBUG 2023-11-20 16:45:36.075 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v5-0e6c11377ba727d4466887a72ad361ed%2FUSER&validFileOnly=0
+INFO 2023-11-20 16:45:36.410 UTC: 	 Dataset file count total/valid/invalid = 8050/0/8050
+DEBUG 2023-11-20 16:45:36.411 UTC: 	 Encoded data for curl request: {"dataset": "/MinBias_PbPb_5p36TeV_Hydjet_v1/sarteaga-MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v5-0e6c11377ba727d4466887a72ad361ed/USER", "is_file_valid": 1}
+INFO 2023-11-20 16:45:37.071 UTC: 	 File(s) status changed successfully
+DEBUG 2023-11-20 16:45:37.071 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v5-0e6c11377ba727d4466887a72ad361ed%2FUSER&validFileOnly=1
+DEBUG 2023-11-20 16:45:37.636 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_RECODEBUG_v5-0e6c11377ba727d4466887a72ad361ed%2FUSER&validFileOnly=0
+INFO 2023-11-20 16:45:37.969 UTC: 	 Dataset file count total/valid/invalid = 8050/8050/0
+INFO 2023-11-20 16:45:38.003 UTC: 	 Log file is /afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/crab.log
+DEBUG 2023-11-20 16:46:33.690 UTC: 	 CRAB Client version: v3.231030
+DEBUG 2023-11-20 16:46:33.690 UTC: 	 Running on: Linux lxplus803.cern.ch 4.18.0-477.27.1.el8_8.x86_64 #1 SMP Thu Aug 31 10:29:22 EDT 2023 x86_64 x86_64 x86_64 GNU/Linux - Red Hat Enterprise Linux 8.8 (Ootpa)
+DEBUG 2023-11-20 16:46:33.690 UTC: 	 Executing command: 'setfilestatus'
+DEBUG 2023-11-20 16:46:33.690 UTC: 	 Found CRAB cache file /afs/cern.ch/user/r/rpradhan/.crab3
+DEBUG 2023-11-20 16:46:33.691 UTC: 	 Checking credentials
+DEBUG 2023-11-20 16:46:33.691 UTC: 	 Found proxy file /tmp/x509up_u119946
+DEBUG 2023-11-20 16:46:33.691 UTC: 	 Making sure it has proper VOMS extension
+DEBUG 2023-11-20 16:46:33.691 UTC: 	 Executing command :
+ voms-proxy-info --vo --file /tmp/x509up_u119946
+DEBUG 2023-11-20 16:46:34.754 UTC: 	 output : cms
+
+ error: 
+ retcode : 0
+DEBUG 2023-11-20 16:46:34.755 UTC: 	 Getting proxy life time left
+DEBUG 2023-11-20 16:46:34.755 UTC: 	 Executing command :
+ voms-proxy-info --actimeleft --timeleft --file /tmp/x509up_u119946
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 output : 690866
+690865
+
+ error: 
+ retcode : 0
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 Proxy valid for 191:54:25 hours
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 Command use: setfilestatus
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 Options use: ['--status', 'VALID', '--dataset', '/MinBias_PbPb_5p36TeV_Hydjet_v1/sarteaga-MinBias_PbPb_5p36TeV_Hydjet_v5_Digi-1afd51c77f69a436f64fff13a23ca33b/USER']
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 Instance is None
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 Server base url is None
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 instance     = prod/phys03
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 dataset      = /MinBias_PbPb_5p36TeV_Hydjet_v1/sarteaga-MinBias_PbPb_5p36TeV_Hydjet_v5_Digi-1afd51c77f69a436f64fff13a23ca33b/USER
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 files        = None
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 status       = VALID
+DEBUG 2023-11-20 16:46:35.784 UTC: 	 Read Url  = cmsweb.cern.ch:8443/dbs/prod/phys03/DBSReader/
+DEBUG 2023-11-20 16:46:35.785 UTC: 	 Write Url = cmsweb.cern.ch:8443/dbs/prod/phys03/DBSWriter/
+DEBUG 2023-11-20 16:46:35.785 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_v5_Digi-1afd51c77f69a436f64fff13a23ca33b%2FUSER&validFileOnly=1
+DEBUG 2023-11-20 16:46:35.934 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_v5_Digi-1afd51c77f69a436f64fff13a23ca33b%2FUSER&validFileOnly=0
+INFO 2023-11-20 16:46:36.347 UTC: 	 Dataset file count total/valid/invalid = 8050/0/8050
+DEBUG 2023-11-20 16:46:36.348 UTC: 	 Encoded data for curl request: {"dataset": "/MinBias_PbPb_5p36TeV_Hydjet_v1/sarteaga-MinBias_PbPb_5p36TeV_Hydjet_v5_Digi-1afd51c77f69a436f64fff13a23ca33b/USER", "is_file_valid": 1}
+INFO 2023-11-20 16:46:36.983 UTC: 	 File(s) status changed successfully
+DEBUG 2023-11-20 16:46:36.984 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_v5_Digi-1afd51c77f69a436f64fff13a23ca33b%2FUSER&validFileOnly=1
+DEBUG 2023-11-20 16:46:37.436 UTC: 	 Encoded data for curl request: dataset=%2FMinBias_PbPb_5p36TeV_Hydjet_v1%2Fsarteaga-MinBias_PbPb_5p36TeV_Hydjet_v5_Digi-1afd51c77f69a436f64fff13a23ca33b%2FUSER&validFileOnly=0
+INFO 2023-11-20 16:46:37.773 UTC: 	 Dataset file count total/valid/invalid = 8050/8050/0
+INFO 2023-11-20 16:46:37.782 UTC: 	 Log file is /afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/crab.log
+DEBUG 2023-11-24 21:00:16.934 UTC: 	 CRAB Client version: v3.231010
+DEBUG 2023-11-24 21:00:16.934 UTC: 	 Running on: Linux lxplus808.cern.ch 4.18.0-477.27.1.el8_8.x86_64 #1 SMP Thu Aug 31 10:29:22 EDT 2023 x86_64 x86_64 x86_64 GNU/Linux - Red Hat Enterprise Linux 8.9 (Ootpa)
+DEBUG 2023-11-24 21:00:16.935 UTC: 	 Executing command: 'submit'
+DEBUG 2023-11-24 21:00:16.935 UTC: 	 Found CRAB cache file /afs/cern.ch/user/r/rpradhan/.crab3
+INFO 2023-11-24 21:00:16.935 UTC: 	 Will use CRAB configuration file crab_config_MCRecoDebug.py
+DEBUG 2023-11-24 21:00:16.935 UTC: 	 Loading CRAB configuration file.
+DEBUG 2023-11-24 21:00:16.938 UTC: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+ERROR 2023-11-24 21:00:16.938 UTC: 	 Working area '/afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/TrackingStudies_Run3/crab_GeneralTracks_MCRecodebug_v1' already exists 
+Please change the requestName in the config file
+ERROR 2023-11-24 21:00:16.939 UTC: 	 Caught ClientException exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/bin/crab.py", line 159, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/bin/crab.py", line 144, in __call__
+    self.cmd = sub_cmd(self.logger, args[1:])
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/lib/CRABClient/Commands/submit.py", line 36, in __init__
+    SubCommand.__init__(self, logger, cmdargs, disable_interspersed_args=True)
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/lib/CRABClient/Commands/SubCommand.py", line 320, in __init__
+    self.requestarea, self.requestname, self.logfile = createWorkArea(
+  File "/cvmfs/cms.cern.ch/share/cms/crab-prod/v3.231010.00/lib/CRABClient/ClientUtilities.py", line 387, in createWorkArea
+    raise ConfigException("Working area '%s' already exists \nPlease change the requestName in the config file" % fullpath)
+CRABClient.ClientExceptions.ConfigException: Working area '/afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/TrackingStudies_Run3/crab_GeneralTracks_MCRecodebug_v1' already exists 
+Please change the requestName in the config file
+INFO 2023-11-24 21:00:16.956 UTC: 	 Log file is /afs/cern.ch/work/r/rpradhan/Tracking_Studies/newCode_AfterRun3/CMSSW_13_2_5_patch1/src/HITrackingStudies/HITrackingStudies/test/crab.log

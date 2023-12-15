@@ -1,0 +1,19 @@
+
+Processing macro_control_plots_OneSample_New.C...
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_Vz_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_HiBin_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_pt_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_eta_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_phi_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_nhits_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_dZsig_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_dXYsig_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_pTres_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_chi2_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_algo_allTrks_NoSel_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_nhits_allTrks_NimusOneCuts_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_dZsig_allTrks_NimusOneCuts_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_dXYsig_allTrks_NimusOneCuts_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_pTres_allTrks_NimusOneCuts_Cent5080.pdf has been created
+Info in <TCanvas::Print>: pdf file ControlPlotsOneSample/hist_chi2_allTrks_NimusOneCuts_Cent5080.pdf has been created
+SysError in <TFile::Flush>: error flushing file Run3Data_Cent5080_Run810CentTable.root Input/output error
