@@ -211,7 +211,7 @@ process.p = cms.Path(
                       process.tpRecoAssocGeneralTracks *
                       process.centralityBin *
                       process.HITrackCorrections 
-                      #process.anaSeq
+                      #process.anaSeq ## comment if you want to save only histograms
 )
 
 #if (options.sample == "MC_Reco_AOD" or options.sample == "Data_Reco_AOD" or options.sample == "Data_MiniAOD"):
